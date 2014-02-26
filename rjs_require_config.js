@@ -41,6 +41,7 @@ var requirejs = {
         mediaOvelayDataInjector: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/media_overlay_data_injector',
         internalLinksSupport: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/internal_links_support',
         iframeLoader: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/iframe_loader',
+        rangy: 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy-core',
 
         Readium: 'epub-modules/Readium'
     },
@@ -66,7 +67,6 @@ var requirejs = {
             location: 'lib/URIjs',
             main: 'URI'
         }
-
     ],
 
 
@@ -236,8 +236,12 @@ var requirejs = {
             exports:'readerView'
         },
 
+        rangy: {
+            exports: "rangy",
+            init: function() { return this.rangy; }
+        },
         annotations_module: {
-            deps: ['epubCfi'],
+            deps: ['epubCfi','rangy'],
             exports:'annotations_module'
         },
 
