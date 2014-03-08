@@ -14,7 +14,7 @@ define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
 
             reader.on(ReadiumSDK.Events.CONTENT_DOCUMENT_LOADED, function(iframe,s) {
                 //set hammer's document root
-                Hammer.DOCUMENT = iframe.contents();
+                Hammer.DOCUMENT = iframe[0].contentDocument.documentElement;
                 //hammer's internal touch events need to be redefined? (doesn't work without)
                 Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_MOVE, Hammer.detection.detect);
                 Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_END, Hammer.detection.detect);
