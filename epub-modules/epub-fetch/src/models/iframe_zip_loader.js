@@ -4,8 +4,8 @@ define([], function(){
 
         var basicIframeLoader = new ReadiumSDK.Views.IFrameLoader();
 
-        this.addIFrameEventListener = function(eventName, callback, context) {
-            basicIframeLoader.addIFrameEventListener(eventName, callback, context);
+        this.addIFrameEventListener = function(eventName, callback, context, jqueryEvent) {
+            basicIframeLoader.addIFrameEventListener(eventName, callback, context, jqueryEvent);
         };
 
         this.loadIframe = function(iframe, src, callback, caller, attachedData) {
