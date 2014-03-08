@@ -18,21 +18,21 @@ define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
                 //hammer's internal touch events need to be redefined? (doesn't work without)
                 Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_MOVE, Hammer.detection.detect);
                 Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_END, Hammer.detection.detect);
-
+                //delete Hammer.defaults.stop_browser_behavior.userSelect;
                 //set up the hammer gesture events
                 //swiping handlers
-                var swipingOptions = {prevent_mouseevents: true};
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft", function() {
+                var swipingOptions = {stop_browser_behavior:false, prevent_mouseevents: false};
+                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft.Hammer", function() {
                     nextPage();
                 });
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight", function() {
+                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight.Hammer", function() {
                     prevPage();
                 });
 
                 //remove stupid ipad safari elastic scrolling
                 //TODO: test this with reader ScrollView and FixedView
                 $(Hammer.DOCUMENT).on(
-                    'touchmove',
+                    'touchmove.Hammer',
                     function(e) {
                         //hack: check if we are not dealing with a scrollview
                         if(iframe.height()<=iframe.parent().height()){
@@ -42,22 +42,22 @@ define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
                 );
             });
 
-            //remove stupid ipad safari elastic scrolling (improves UX for gestures)
-            //TODO: test this with reader ScrollView and FixedView
-            $(viewport).on(
-                'touchmove',
-                function(e) {
-                    e.preventDefault();
-                }
-            );
-
-            //handlers on viewport
-            $(viewport).hammer().on("swipeleft", function() {
-                nextPage();
-            });
-            $(viewport).hammer().on("swiperight", function() {
-                prevPage();
-            });
+//            //remove stupid ipad safari elastic scrolling (improves UX for gestures)
+//            //TODO: test this with reader ScrollView and FixedView
+//            $(viewport).on(
+//                'touchmove.Hammer',
+//                function(e) {
+//                    e.preventDefault();
+//                }
+//            );
+//
+//            //handlers on viewport
+//            $(viewport).hammer().on("swipeleft.Hammer", function() {
+//                nextPage();
+//            });
+//            $(viewport).hammer().on("swiperight.Hammer", function() {
+//                prevPage();
+//            });
         };
 
     };
