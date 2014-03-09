@@ -22,11 +22,13 @@ define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
                 //set up the hammer gesture events
                 //swiping handlers
                 var swipingOptions = {stop_browser_behavior:false, prevent_mouseevents: false};
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft.Hammer", function() {
-                    nextPage();
+                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft.Hammer", function(p1,p2,p3) {
+                    reader.trigger('swipeleft',p1,p2,p3);
+                    //nextPage();
                 });
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight.Hammer", function() {
-                    prevPage();
+                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight.Hammer", function(p1,p2,p3) {
+                    reader.trigger('swiperight',p1,p2,p3);
+                    //prevPage();
                 });
 
                 //remove stupid ipad safari elastic scrolling
