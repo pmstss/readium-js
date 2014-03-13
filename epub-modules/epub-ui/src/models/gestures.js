@@ -21,7 +21,7 @@ define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
                 //delete Hammer.defaults.stop_browser_behavior.userSelect;
                 //set up the hammer gesture events
                 //swiping handlers
-                var swipingOptions = {stop_browser_behavior:false, prevent_mouseevents: false};
+                var swipingOptions = {stop_browser_behavior:false, prevent_mouseevents: true};
                 Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft.Hammer", function(p1,p2,p3) {
                     reader.trigger('swipeleft',p1,p2,p3);
                     //nextPage();
