@@ -22,13 +22,24 @@ define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
                 //set up the hammer gesture events
                 //swiping handlers
                 var swipingOptions = {stop_browser_behavior:false, prevent_mouseevents: true};
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft.Hammer", function(p1,p2,p3) {
-                    reader.trigger('swipeleft',p1,p2,p3);
+                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft.Hammer", function(e) {
+                    reader.trigger('swipeleft',e);
                     //nextPage();
                 });
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight.Hammer", function(p1,p2,p3) {
-                    reader.trigger('swiperight',p1,p2,p3);
+                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight.Hammer", function(e) {
+                    reader.trigger('swiperight',e);
                     //prevPage();
+                });
+
+                //touch handlers
+                Hammer(Hammer.DOCUMENT, swipingOptions).on("tap.Hammer", function (e) {
+                    reader.trigger('tap', e);
+                });
+                Hammer(Hammer.DOCUMENT, swipingOptions).on("doubletap.Hammer", function (e) {
+                    reader.trigger('doubletap', e);
+                });
+                Hammer(Hammer.DOCUMENT, swipingOptions).on("hold.Hammer", function (e) {
+                    reader.trigger('hold', e);
                 });
 
                 //remove stupid ipad safari elastic scrolling
