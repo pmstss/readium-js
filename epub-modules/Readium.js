@@ -26,7 +26,7 @@ define(['require', 'module', 'console_shim', 'modernizr', 'jquery', 'underscore'
         _gesturesHandler.initialize();
 
 
-        this.openPackageDocument = function(bookRoot, callback, callbackBeforeContentDocumentLoad)  {
+        this.openPackageDocument = function(bookRoot, callback, openPageRequest)  {
 
             _currentResourceFetcher = new ResourceFetcher(bookRoot, jsLibRoot);
 
@@ -36,18 +36,18 @@ define(['require', 'module', 'console_shim', 'modernizr', 'jquery', 'underscore'
 
                 _packageParser.parse(function(docJson){
                     SmilParser.fillSmilData(docJson, bookRoot, jsLibRoot, _currentResourceFetcher, function() {
-
                         var packageDocument = new PackageDocument(_currentResourceFetcher.getPackageUrl(), docJson, _currentResourceFetcher);
-                        var options = {
+                        var openBookOptions = readiumOptions.openBookOptions || {};
+                        var openBookData = $.extend(packageDocument.getPackageData(), openBookOptions);
+                        if (openPageRequest) {
+                            openBookData.openPageRequest = openPageRequest;
+                        }
+                        self.reader.openBook(openBookData);
+
+                        var options = { 
                             packageDocumentUrl : _currentResourceFetcher.getPackageUrl(),
                             metadata: docJson.metadata
                         };
-                        if (callbackBeforeContentDocumentLoad) {
-                            callbackBeforeContentDocumentLoad(packageDocument, options);
-                        }
-                        var openBookOptions = readiumOptions.openBookOptions || {};
-                        var openBookData = $.extend(packageDocument.getPackageData(), openBookOptions);
-                        self.reader.openBook(openBookData);
 
                         if (callback){
                             // gives caller access to document metadata like the table of contents
