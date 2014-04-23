@@ -1,6 +1,6 @@
 
-define(['require', 'module', 'console_shim', 'modernizr', 'jquery', 'underscore', 'readerView', 'epub-fetch', 'epub-model/package_document_parser', 'epub-model/package_document', 'epub-fetch/iframe_zip_loader', 'epub-model/smil_document_parser', 'URIjs', 'epub-ui/gestures'],
-    function (require, module, console_shim, Modernizr, $, _, readerView, ResourceFetcher, PackageParser, PackageDocument, IframeZipLoader, SmilParser, URI, GesturesHandler) {
+define(['require', 'module', 'console_shim', 'modernizr', 'jquery', 'underscore', 'readerView', 'epub-fetch', 'epub-model/package_document_parser', 'epub-model/package_document', 'epub-fetch/iframe_zip_loader', 'epub-model/smil_document_parser', 'URIjs'],
+    function (require, module, console_shim, Modernizr, $, _, readerView, ResourceFetcher, PackageParser, PackageDocument, IframeZipLoader, SmilParser, URI) {
 
     console.log('Readium module id: ' + module.id);
 
@@ -21,10 +21,6 @@ define(['require', 'module', 'console_shim', 'modernizr', 'jquery', 'underscore'
         readerOptions.iframeLoader = _iframeZipLoader;
 
         this.reader = new ReadiumSDK.Views.ReaderView(readerOptions);
-
-        var _gesturesHandler = new GesturesHandler(this.reader,renderingViewport);
-        _gesturesHandler.initialize();
-
 
         this.openPackageDocument = function(bookRoot, callback, openPageRequest)  {
 
@@ -56,7 +52,7 @@ define(['require', 'module', 'console_shim', 'modernizr', 'jquery', 'underscore'
                     })
                 });
             });
-        }
+        };
 
         ReadiumSDK.trigger(ReadiumSDK.Events.READER_INITIALIZED, this.reader);
     };
