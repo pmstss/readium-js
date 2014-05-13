@@ -1,3 +1,16 @@
+//  Copyright (c) 2014 Readium Foundation and/or its licensees. All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification, 
+//  are permitted provided that the following conditions are met:
+//  1. Redistributions of source code must retain the above copyright notice, this 
+//  list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright notice, 
+//  this list of conditions and the following disclaimer in the documentation and/or 
+//  other materials provided with the distribution.
+//  3. Neither the name of the organization nor the names of its contributors may be 
+//  used to endorse or promote products derived from this software without specific 
+//  prior written permission.
+
 
 var requirejs = {
 
@@ -8,7 +21,8 @@ var requirejs = {
         underscore: 'lib/underscore-1.4.4',
         backbone: 'lib/backbone-0.9.10',
         bootstrap: 'lib/bootstrap.min',
-        modernizr: 'epub-modules/epub-renderer/src/readium-shared-js/lib/modernizr.min',
+        jquery_hammer: 'lib/jquery.hammer',
+        hammer: 'lib/hammer',
         jquerySizes: 'epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.sizes',
         readiumSDK: 'epub-modules/epub-renderer/src/readium-shared-js/js/readium_sdk',
         helpers: 'epub-modules/epub-renderer/src/readium-shared-js/js/helpers',
@@ -42,17 +56,17 @@ var requirejs = {
         mediaOvelayDataInjector: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/media_overlay_data_injector',
         internalLinksSupport: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/internal_links_support',
         iframeLoader: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/iframe_loader',
-
+        
 
         domReady : 'lib/domReady',
-
+        
         rangy : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy',
         "rangy-core" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-core',
         "rangy-textrange" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-textrange',
         "rangy-highlighter" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-highlighter',
         "rangy-cssclassapplier" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-cssclassapplier',
         "rangy-position" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-position',
-
+        
         Readium: 'epub-modules/Readium'
     },
 
@@ -83,53 +97,49 @@ var requirejs = {
 
     shim: {
 
-        modernizr: {
-            exports: 'Modernizr'
-        },
-
         'rangy-core': {
-            deps: ["domReady"],
-            exports: "rangy", // global.rangy
-            init: function(domReady) {
-                var rangi = this.rangy;
-                domReady(function(){
-                    rangi.init();
-                });
-                return this.rangy;
-            }
-        },
-        'rangy-textrange': {
-            deps: ["rangy-core"],
-            exports: "rangy.modules.TextRange"
-        },
-        'rangy-highlighter': {
-            deps: ["rangy-core"],
-            exports: "rangy.modules.Highlighter"
-        },
-        'rangy-cssclassapplier': {
-            deps: ["rangy-core"],
-            exports: "rangy.modules.ClassApplier"
-        },
-        'rangy-position': {
-            deps: ["rangy-core"],
-            exports: "rangy.modules.Position"
-        },
-
-        /*
-         'rangy/rangy-serializer': {
+             deps: ["domReady"],
+             exports: "rangy", // global.rangy
+             init: function(domReady) {
+                 var rangi = this.rangy;
+            domReady(function(){
+                rangi.init();
+            });
+            return this.rangy;
+        }
+       },
+       'rangy-textrange': {
+         deps: ["rangy-core"],
+         exports: "rangy.modules.TextRange"
+       },
+       'rangy-highlighter': {
+         deps: ["rangy-core"],
+         exports: "rangy.modules.Highlighter"
+       },
+       'rangy-cssclassapplier': {
+         deps: ["rangy-core"],
+         exports: "rangy.modules.ClassApplier"
+       },
+       'rangy-position': {
+         deps: ["rangy-core"],
+         exports: "rangy.modules.Position"
+       },
+        
+       /*
+       'rangy/rangy-serializer': {
          deps: ["rangy/rangy-core"],
          exports: "rangy.modules.Serializer"
-         },
-         'rangy/rangy-selectionsaverestore': {
+       },
+       'rangy/rangy-selectionsaverestore': {
          deps: ["rangy/rangy-core"],
          exports: "rangy.modules.SaveRestore"
-         },
-         */
-
+       },
+       */
+       /*
         console_shim: {
             exports: 'console_shim'
         },
-
+       */
         underscore: {
             exports: '_'
         },
@@ -212,7 +222,6 @@ var requirejs = {
             exports:'onePageView'
         },
 
-
         cfiNavigationLogic: {
             deps: ['readiumSDK', 'epubCfi'],
             exports:'cfiNavigationLogic'
@@ -279,8 +288,8 @@ var requirejs = {
         },
 
         mediaOvelayDataInjector: {
-            deps: ['readiumSDK', 'mediaOverlay', 'mediaOverlayPlayer', 'smilModel', 'spineItem', 'smilIterator', 'rangy'],
-            exports: 'mediaOvelayDataInjector'
+          deps: ['readiumSDK', 'mediaOverlay', 'mediaOverlayPlayer', 'smilModel', 'spineItem', 'smilIterator', 'rangy'],
+          exports: 'mediaOvelayDataInjector'
         },
 
         internalLinksSupport: {

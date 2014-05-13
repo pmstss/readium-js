@@ -1,3 +1,16 @@
+//  Copyright (c) 2014 Readium Foundation and/or its licensees. All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification, 
+//  are permitted provided that the following conditions are met:
+//  1. Redistributions of source code must retain the above copyright notice, this 
+//  list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright notice, 
+//  this list of conditions and the following disclaimer in the documentation and/or 
+//  other materials provided with the distribution.
+//  3. Neither the name of the organization nor the names of its contributors may be 
+//  used to endorse or promote products derived from this software without specific 
+//  prior written permission.
+
 define(
     ['require', 'module', 'jquery', 'URIjs', './discover_content_type'],
     function (require, module, $, URI, ContentTypeDiscovery) {
@@ -32,6 +45,8 @@ define(
                 var resolutionDeferreds = [];
 
                 resolveDocumentImages(resolutionDeferreds, onerror);
+                resolveDocumentAudios(resolutionDeferreds, onerror);
+                resolveDocumentVideos(resolutionDeferreds, onerror);
                 resolveDocumentLinkStylesheets(resolutionDeferreds, onerror);
                 resolveDocumentEmbeddedStylesheets(resolutionDeferreds, onerror);
 
@@ -248,6 +263,14 @@ define(
 
             function resolveDocumentImages(resolutionDeferreds, onerror) {
                 resolveResourceElements('img', 'src', 'blob', resolutionDeferreds, onerror);
+            }
+
+            function resolveDocumentAudios(resolutionDeferreds, onerror) {
+                resolveResourceElements('audio', 'src', 'blob', resolutionDeferreds, onerror);
+            }
+
+            function resolveDocumentVideos(resolutionDeferreds, onerror) {
+                resolveResourceElements('video', 'src', 'blob', resolutionDeferreds, onerror);
             }
 
             function resolveDocumentLinkStylesheets(resolutionDeferreds, onerror) {

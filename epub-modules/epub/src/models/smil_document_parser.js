@@ -1,14 +1,27 @@
-define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ], function(require, module, $, _, Backbone, ResourceFetcher) {
-    console.log('smil_document_parser module id: ' + module.id);
+//  Copyright (c) 2014 Readium Foundation and/or its licensees. All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification, 
+//  are permitted provided that the following conditions are met:
+//  1. Redistributions of source code must retain the above copyright notice, this 
+//  list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright notice, 
+//  this list of conditions and the following disclaimer in the documentation and/or 
+//  other materials provided with the distribution.
+//  3. Neither the name of the organization nor the names of its contributors may be 
+//  used to endorse or promote products derived from this software without specific 
+//  prior written permission.
+
+define(['require', 'module', 'jquery', 'underscore'], function (require, module, $, _) {
 
     // `SmilDocumentParser` is used to parse the xml of an epub package
     // document and build a javascript object. The constructor accepts an
     // instance of `URI` that is used to resolve paths during the process
-    var SmilDocumentParser = function(packageFetcher, itemHref) {
+    var SmilDocumentParser = function(docJson, publicationFetcher) {
 
-        // Parse an XML package document into a javascript object
-        this.parse = function(callback) {
-            packageFetcher.getRelativeXmlFileDom(itemHref, function(xmlDom){
+        // Parse a media overlay manifest item XML
+        this.parse = function(itemHref, callback) {
+            var that = this;
+            publicationFetcher.getRelativeXmlFileDom(itemHref, function(xmlDom){
                 var json, cover;
 
                 json = {};
@@ -17,7 +30,7 @@ define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ]
                 json.smilVersion = smil.getAttribute('version');
 
                 //var body = $("body", xmlDom)[0];
-                json.children = getChildren(smil);
+                json.children = that.getChildren(smil);
 
                 callback(json);
             })
@@ -46,45 +59,15 @@ define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ]
         // parse the timestamp and return the value in seconds
         // supports this syntax:
         // http://idpf.org/epub/30/spec/epub30-mediaoverlays.html#app-clock-examples
-        function resolveClockValue(value) {
-            if (!value) return 0;
-            
-            var hours = 0;
-            var mins = 0;
-            var secs = 0;
 
-            if (value.indexOf("min") != -1) {
-                mins = parseFloat(value.substr(0, value.indexOf("min")));
-            } else if (value.indexOf("ms") != -1) {
-                var ms = parseFloat(value.substr(0, value.indexOf("ms")));
-                secs = ms / 1000;
-            } else if (value.indexOf("s") != -1) {
-                secs = parseFloat(value.substr(0, value.indexOf("s")));
-            } else if (value.indexOf("h") != -1) {
-                hours = parseFloat(value.substr(0, value.indexOf("h")));
-            } else {
-                // parse as hh:mm:ss.fraction
-                // this also works for seconds-only, e.g. 12.345
-                arr = value.split(":");
-                secs = parseFloat(arr.pop());
-                if (arr.length > 0) {
-                    mins = parseFloat(arr.pop());
-                    if (arr.length > 0) {
-                        hours = parseFloat(arr.pop());
-                    }
-                }
-            }
-            var total = hours * 3600 + mins * 60 + secs;
-            return total;
-        }
-
-        function getChildren(element) {
+        this.getChildren = function(element) {
+            var that = this;
             var children = [];
 
             $.each(element.childNodes, function(elementIndex, currElement) {
 
                 if (currElement.nodeType === 1) { // ELEMENT
-                    var item = createItemFromElement(currElement);
+                    var item = that.createItemFromElement(currElement);
                     if (item) {
                         children.push(item);
                     }
@@ -94,7 +77,9 @@ define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ]
             return children;
         }
 
-        function createItemFromElement(element) {
+        this.createItemFromElement = function(element) {
+            var that = this;
+
             var item = {};
             item.nodeType = element.nodeName;
             
@@ -111,14 +96,14 @@ define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ]
                 safeCopyProperty("id", element, item);
                 safeCopyProperty("epub:type", element, item);
 
-                item.children = getChildren(element);
+                item.children = that.getChildren(element);
 
             } else if (item.nodeType === "par") {
 
                 safeCopyProperty("id", element, item);
                 safeCopyProperty("epub:type", element, item);
 
-                item.children = getChildren(element);
+                item.children = that.getChildren(element);
 
             } else if (item.nodeType === "text") {
 
@@ -132,8 +117,8 @@ define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ]
             } else if (item.nodeType === "audio") {
                 safeCopyProperty("src", element, item, true);
                 safeCopyProperty("id", element, item);
-                item.clipBegin = resolveClockValue(element.getAttribute("clipBegin"));
-                item.clipEnd = resolveClockValue(element.getAttribute("clipEnd"));
+                item.clipBegin = SmilDocumentParser.resolveClockValue(element.getAttribute("clipBegin"));
+                item.clipEnd = SmilDocumentParser.resolveClockValue(element.getAttribute("clipEnd"));
             }
             else
             {
@@ -143,132 +128,160 @@ define([ 'require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch' ]
             return item;
         }
 
-    };
+        this.fillSmilData = function(callback) {
+            var that = this;
 
-    
-    function fillSmilData(docJson, bookRoot, jsLibRoot, currentResourceFetcher, callback) {
-
-        if (docJson.spine.length <= 0) {
-            docJson.mo_map = [];
-            callback(docJson);
-            return;
-        }
-
-        var allFakeSmil = true;
-        docJson.mo_map = [];
-        
-        var processSpineItem = function(ii) {
-
-            if (ii >= docJson.spine.length) {
-                if (allFakeSmil) {
-                    console.log("No Media Overlays");
-                    docJson.mo_map = [];
-                }
-
+            if (docJson.spine.length <= 0) {
+                docJson.mo_map = [];
                 callback(docJson);
                 return;
             }
-            
-            var spineItem = docJson.spine[ii];
-            
-            var manifestItem = undefined;
-            for (var jj = 0; jj < docJson.manifest.length; jj++) {
-                var item = docJson.manifest[jj];
-                if (item.id === spineItem.idref) {
-                    manifestItem = item;
-                    break;
+
+            var allFakeSmil = true;
+            docJson.mo_map = [];
+
+            var processSpineItem = function(ii) {
+
+                if (ii >= docJson.spine.length) {
+                    if (allFakeSmil) {
+                        console.log("No Media Overlays");
+                        docJson.mo_map = [];
+                    }
+
+                    callback(docJson);
+                    return;
                 }
-            }
-            if (!manifestItem) {
-                console.error("Cannot find manifest item for spine item?! " + spineItem.idref);
-                processSpineItem(ii+1);
-                return;
-            }
-            
-            if (manifestItem.media_overlay) {
-            
-                var manifestItemSMIL = undefined;
+
+                var spineItem = docJson.spine[ii];
+
+                var manifestItem = undefined;
                 for (var jj = 0; jj < docJson.manifest.length; jj++) {
                     var item = docJson.manifest[jj];
-                    if (item.id === manifestItem.media_overlay) {
-                        manifestItemSMIL = item;
+                    if (item.id === spineItem.idref) {
+                        manifestItem = item;
                         break;
                     }
                 }
-                if (!manifestItemSMIL) {
-                    console.error("Cannot find SMIL manifest item for spine/manifest item?! " + manifestItem.media_overlay);
+                if (!manifestItem) {
+                    console.error("Cannot find manifest item for spine item?! " + spineItem.idref);
                     processSpineItem(ii+1);
                     return;
                 }
-                //ASSERT manifestItemSMIL.media_type === "application/smil+xml"
-                
-                var smilParser = new SmilDocumentParser(currentResourceFetcher, manifestItemSMIL.href);
-                smilParser.parse(function(smilJson) {
-                    smilJson.href = manifestItemSMIL.href;
-                    smilJson.id = manifestItemSMIL.id;
-                    smilJson.spineItemId = spineItem.idref; // same as manifestItem.id
 
-                    if (docJson.metadata.mediaItems) {
-                        for (var idx = 0; idx < docJson.metadata.mediaItems.length; idx++) {
-                            var item = docJson.metadata.mediaItems[idx];
-                            if (!item.refines) continue;
-                            
-                            var id = item.refines;
-                            var hash = id.indexOf('#');
-                            if (hash >= 0) {
-                                var start = hash+1;
-                                var end = id.length-1;
-                                id = id.substr(start, end);
-                            }
-                            id = id.trim();
+                if (manifestItem.media_overlay) {
 
-                            if (id === manifestItemSMIL.id) {
-                                smilJson.duration = item.duration; //resolveClockValue already done.
-                                break;
-                            }
+                    var manifestItemSMIL = undefined;
+                    for (var jj = 0; jj < docJson.manifest.length; jj++) {
+                        var item = docJson.manifest[jj];
+                        if (item.id === manifestItem.media_overlay) {
+                            manifestItemSMIL = item;
+                            break;
                         }
                     }
+                    if (!manifestItemSMIL) {
+                        console.error("Cannot find SMIL manifest item for spine/manifest item?! " + manifestItem.media_overlay);
+                        processSpineItem(ii+1);
+                        return;
+                    }
+                    //ASSERT manifestItemSMIL.media_type === "application/smil+xml"
 
-                    allFakeSmil = false;
-                    docJson.mo_map.push(smilJson);
-                    
-                    setTimeout(function(){ processSpineItem(ii+1); }, 0);
-                    return;
-                });
-            }
-            else {
-                docJson.mo_map.push({
-                    id: "",
-                    href: "",
-                    spineItemId: spineItem.idref, // same as manifestItem.id
-                    children: [{
-                        nodeType: 'seq',
-                        textref: manifestItem.href,
+                    that.parse(manifestItemSMIL.href, function(smilJson) {
+                        smilJson.href = manifestItemSMIL.href;
+                        smilJson.id = manifestItemSMIL.id;
+                        smilJson.spineItemId = spineItem.idref; // same as manifestItem.id
+
+                        if (docJson.metadata.mediaItems) {
+                            for (var idx = 0; idx < docJson.metadata.mediaItems.length; idx++) {
+                                var item = docJson.metadata.mediaItems[idx];
+                                if (!item.refines) continue;
+
+                                var id = item.refines;
+                                var hash = id.indexOf('#');
+                                if (hash >= 0) {
+                                    var start = hash+1;
+                                    var end = id.length-1;
+                                    id = id.substr(start, end);
+                                }
+                                id = id.trim();
+
+                                if (id === manifestItemSMIL.id) {
+                                    smilJson.duration = item.duration; //resolveClockValue already done.
+                                    break;
+                                }
+                            }
+                        }
+
+                        allFakeSmil = false;
+                        docJson.mo_map.push(smilJson);
+
+                        setTimeout(function(){ processSpineItem(ii+1); }, 0);
+                        return;
+                    });
+                }
+                else {
+                    docJson.mo_map.push({
+                        id: "",
+                        href: "",
+                        spineItemId: spineItem.idref, // same as manifestItem.id
                         children: [{
-                            nodeType: 'par',
+                            nodeType: 'seq',
+                            textref: manifestItem.href,
                             children: [{
-                                nodeType: 'text',
-                                src: manifestItem.href,
-                                srcFile: manifestItem.href,
-                                srcFragmentId: ""
+                                nodeType: 'par',
+                                children: [{
+                                    nodeType: 'text',
+                                    src: manifestItem.href,
+                                    srcFile: manifestItem.href,
+                                    srcFragmentId: ""
+                                }]
                             }]
                         }]
-                    }]
-                });
-                
-                setTimeout(function(){ processSpineItem(ii+1); }, 0);
-                return;
+                    });
+
+                    setTimeout(function(){ processSpineItem(ii+1); }, 0);
+                    return;
+                }
+            };
+
+            processSpineItem(0);
+        }
+
+
+    };
+
+
+
+    SmilDocumentParser.resolveClockValue = function(value) {
+        if (!value) return 0;
+
+        var hours = 0;
+        var mins = 0;
+        var secs = 0;
+
+        if (value.indexOf("min") != -1) {
+            mins = parseFloat(value.substr(0, value.indexOf("min")));
+        } else if (value.indexOf("ms") != -1) {
+            var ms = parseFloat(value.substr(0, value.indexOf("ms")));
+            secs = ms / 1000;
+        } else if (value.indexOf("s") != -1) {
+            secs = parseFloat(value.substr(0, value.indexOf("s")));
+        } else if (value.indexOf("h") != -1) {
+            hours = parseFloat(value.substr(0, value.indexOf("h")));
+        } else {
+            // parse as hh:mm:ss.fraction
+            // this also works for seconds-only, e.g. 12.345
+            var arr = value.split(":");
+            secs = parseFloat(arr.pop());
+            if (arr.length > 0) {
+                mins = parseFloat(arr.pop());
+                if (arr.length > 0) {
+                    hours = parseFloat(arr.pop());
+                }
             }
-        };
-        
-        processSpineItem(0);
+        }
+        var total = hours * 3600 + mins * 60 + secs;
+        return total;
     }
     
-    
-    var SmilParser = {
-        fillSmilData: fillSmilData,
-        Parser: SmilDocumentParser
-    }
-    
-    return SmilParser;
+    return SmilDocumentParser;
 });
