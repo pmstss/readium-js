@@ -21,7 +21,7 @@ define(['require', 'module', 'console_shim', 'jquery', 'underscore', 'readerView
     //polyfill to support Safari 6
     if ('URL' in window === false) {
         if ('webkitURL' in window === false) {
-            throw Error('Browser does not support window.URL');
+            console.error('Browser does not support window.URL');
         }
 
         window.URL = window.webkitURL;
