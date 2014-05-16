@@ -42,8 +42,8 @@ define(['require', 'module', 'console_shim', 'jquery', 'underscore', 'readerView
 
         this.reader = new ReadiumSDK.Views.ReaderView(readerOptions);
 
-        var _gesturesHandler = new GesturesHandler(this.reader,renderingViewport);
-        _gesturesHandler.initialize();
+        //var _gesturesHandler = new GesturesHandler(this.reader,renderingViewport);
+        //_gesturesHandler.initialize();
 
 
         this.openPackageDocument = function(bookRoot, callback, openPageRequest)  {
