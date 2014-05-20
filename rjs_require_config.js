@@ -45,6 +45,7 @@ var requirejs = {
         cfiNavigationLogic: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/cfi_navigation_logic',
         reflowableView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/reflowable_view',
         scrollView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/scroll_view',
+        fallbackScrollView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/fallback_scroll_view',
         onePageView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/one_page_view',
         fixedView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/fixed_view',
         readerView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/reader_view',
@@ -66,6 +67,8 @@ var requirejs = {
         "rangy-highlighter" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-highlighter',
         "rangy-cssclassapplier" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-cssclassapplier',
         "rangy-position" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-position',
+
+        modernizr: 'lib/modernizr.min',
         
         Readium: 'epub-modules/Readium'
     },
@@ -124,7 +127,10 @@ var requirejs = {
          deps: ["rangy-core"],
          exports: "rangy.modules.Position"
        },
-        
+
+        modernizr: {
+            exports: 'Modernizr'
+        },
        /*
        'rangy/rangy-serializer': {
          deps: ["rangy/rangy-core"],
@@ -282,6 +288,11 @@ var requirejs = {
             exports: 'scrollView'
         },
 
+        fallbackScrollView: {
+            deps: ['readiumSDK', 'cfiNavigationLogic', 'bookmarkData', 'triggers', 'onePageView'],
+            exports: 'fallbackScrollView'
+        },
+
         fixedView: {
             deps: ['readiumSDK', 'onePageView', 'currentPagesInfo', 'fixedPageSpread', 'bookmarkData'],
             exports: 'fixedView'
@@ -305,7 +316,7 @@ var requirejs = {
         readerView : {
             deps: [ 'backbone','readiumSDK', 'helpers', 'viewerSettings', 'styleCollection', 'package',
                 'mediaOverlayPlayer', 'pageOpenRequest', 'fixedView', 'reflowableView', 'mediaOvelayDataInjector',
-                'internalLinksSupport', 'iframeLoader', 'annotationsManager', 'scrollView', 'URIjs', 'triggers', 'switches'],
+                'internalLinksSupport', 'iframeLoader', 'annotationsManager', 'scrollView', 'fallbackScrollView', 'URIjs', 'triggers', 'switches'],
             exports:'readerView'
         },
 
