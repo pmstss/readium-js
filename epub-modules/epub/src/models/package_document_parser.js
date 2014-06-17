@@ -60,8 +60,9 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
                 packageDocJson = {};
                 packageDocJson.metadata = getJsonMetadata(xmlDom);
                 packageDocJson.bindings = getJsonBindings(xmlDom);
-                packageDocJson.spine = getJsonSpine(xmlDom);
                 packageDocJson.manifest = getJsonManifest(xmlDom);
+                packageDocJson.spine = getJsonSpine(xmlDom,  packageDocJson.manifest);
+
 
                 // parse the page-progression-direction if it is present
                 packageDocJson.paginate_backwards = paginateBackwards(xmlDom);
@@ -129,7 +130,7 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
         }
 
 
-        function getJsonSpine(xmlDom) {
+        function getJsonSpine(xmlDom, manifest) {
 
             var $spineElements;
             var jsonSpine = [];
@@ -144,8 +145,16 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
                     linear: $currSpineElement.attr("linear") ? $currSpineElement.attr("linear") : "",
                     properties: $currSpineElement.attr("properties") ? $currSpineElement.attr("properties") : ""
                 };
-                
-                jsonSpine.push(spineItem);
+
+                var manifestItem = _.find(manifest, function(item){
+                    return item.idref === spineItem.idref;
+                });
+
+                if (manifestItem) {
+                    jsonSpine.push(spineItem);
+                } else {
+                    console.warn("PackageDocumentParser: spineItem (" + spineItem.idref + ") with no manifestItem!");
+                }
             });
 
             return jsonSpine;
