@@ -147,7 +147,7 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
                 };
 
                 var manifestItem = _.find(manifest, function(item){
-                    return item.idref === spineItem.idref;
+                    return item.id === spineItem.idref;
                 });
 
                 if (manifestItem) {
