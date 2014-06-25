@@ -34,6 +34,7 @@ var requirejs = {
         mediaOverlay: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/media_overlay',
         viewerSettings: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/viewer_settings',
         bookmarkData: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/bookmark_data',
+        nodeRangeInfo: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/node_range_info',
         spineItem: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/spine_item',
         spine: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/spine',
         fixedPageSpread: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/fixed_page_spread',
@@ -263,6 +264,11 @@ var requirejs = {
             exports: 'bookmarkData'
         },
 
+        nodeRangeInfo: {
+            deps: ['readiumSDK'],
+            exports: 'nodeRangeInfo'
+        },
+
         fixedPageSpread: {
             deps: ['readiumSDK'],
             exports: 'fixedPageSpread'
@@ -316,7 +322,7 @@ var requirejs = {
         readerView : {
             deps: [ 'backbone','readiumSDK', 'helpers', 'viewerSettings', 'styleCollection', 'package',
                 'mediaOverlayPlayer', 'pageOpenRequest', 'fixedView', 'reflowableView', 'mediaOvelayDataInjector',
-                'internalLinksSupport', 'iframeLoader', 'annotationsManager', 'scrollView', 'fallbackScrollView', 'URIjs', 'triggers', 'switches'],
+                'internalLinksSupport', 'iframeLoader', 'annotationsManager', 'scrollView', 'fallbackScrollView', 'URIjs', 'triggers', 'switches', 'nodeRangeInfo'],
             exports:'readerView'
         },
 
