@@ -66,7 +66,7 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
                 var bindings = getJsonBindings(xmlDom);
 
                 var manifest = new Manifest(getJsonManifest(xmlDom));
-                var spine = getJsonSpine(xmlDom, manifest);
+                var spine = getJsonSpine(xmlDom, manifest, metadata);
 
                 // try to find a cover image
                 var cover = getCoverHref(xmlDom);
@@ -127,19 +127,29 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
         }
 
 
-        function getJsonSpine(xmlDom, manifest) {
+        function getJsonSpine(xmlDom, manifest, metadata) {
 
             var $spineElements;
             var jsonSpine = [];
 
-            $spineElements = $("spine", xmlDom).children();
+            $spineElements = $(findXmlElemByLocalNameAnyNS(xmlDom,"spine")).children();
             $.each($spineElements, function (spineElementIndex, currSpineElement) {
 
                 var $currSpineElement = $(currSpineElement);
                 var idref = $currSpineElement.attr("idref") ? $currSpineElement.attr("idref") : "";
                 var manifestItem = manifest.getManifestItemByIdref(idref);
 
+                var id = $currSpineElement.attr("id");
+                var viewport = undefined;
+                _.each(metadata.rendition_viewports, function(vp) {
+                    if (vp.refines == id) {
+                        viewport = vp.viewport;
+                        return true; // break
+                    }
+                });
+
                 var spineItem = {
+                    rendition_viewport: viewport,
                     idref: idref,
                     href: manifestItem.href,
                     manifest_id: manifestItem.id,
@@ -158,12 +168,22 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
             return jsonSpine;
         }
 
-        function findXmlElemByLocalNameAnyNS(rootElement, localName) {
-            return rootElement.getElementsByTagNameNS("*", localName)[0];
+        function findXmlElemByLocalNameAnyNS(rootElement, localName, predicate) {
+            var elements = rootElement.getElementsByTagNameNS("*", localName);
+            if (predicate) {
+                return _.find(elements, predicate);
+            } else {
+                return elements[0];
+            }
         }
 
-        function getElemText(rootElement, localName) {
-            var foundElement = findXmlElemByLocalNameAnyNS(rootElement, localName);
+        function filterXmlElemsByLocalNameAnyNS(rootElement, localName, predicate) {
+            var elements = rootElement.getElementsByTagNameNS("*", localName);
+            return _.filter(elements, predicate);
+        }
+
+        function getElemText(rootElement, localName, predicate) {
+            var foundElement = findXmlElemByLocalNameAnyNS(rootElement, localName, predicate);
             if (foundElement) {
                 return foundElement.textContent;
             } else {
@@ -171,8 +191,8 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
             }
         }
 
-        function getElemAttr(rootElement, localName, attrName) {
-            var foundElement = findXmlElemByLocalNameAnyNS(rootElement, localName);
+        function getElemAttr(rootElement, localName, attrName, predicate) {
+            var foundElement = findXmlElemByLocalNameAnyNS(rootElement, localName, predicate);
             if (foundElement) {
                 return foundElement.getAttribute(attrName);
             } else {
@@ -180,50 +200,111 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
             }
         }
 
+        function getMetaElemPropertyText(rootElement, attrPropertyValue) {
+
+            var foundElement = findXmlElemByLocalNameAnyNS(rootElement, "meta", function (element) {
+                return element.getAttribute("property") === attrPropertyValue;
+            });
+
+            if (foundElement) {
+                return foundElement.textContent;
+            } else {
+                return '';
+            }
+        }
+
+
         function getMetadata(xmlDom) {
 
             var metadata = new Metadata();
-            var $metadata = $("metadata", xmlDom);
-            var metadataElem = xmlDom.getElementsByTagNameNS("*", "metadata")[0];
+            var metadataElem = findXmlElemByLocalNameAnyNS(xmlDom, "metadata");
+            var packageElem = findXmlElemByLocalNameAnyNS(xmlDom, "package");
+            var spineElem = findXmlElemByLocalNameAnyNS(xmlDom, "spine");
+
 
             metadata.author = getElemText(metadataElem, "creator");
             metadata.description = getElemText(metadataElem, "description");
-            // TODO: Convert all jQuery queries (that get confused by XML namespaces on Firefox) to getElementsByTagNameNS().
             metadata.epub_version =
-                $("package", xmlDom).attr("version") ? $("package", xmlDom).attr("version") : "";
+                packageElem.getAttribute("version") ? packageElem.getAttribute("version") : "";
             metadata.id = getElemText(metadataElem,"identifier");
             metadata.language = getElemText(metadataElem, "language");
-            metadata.modified_date = $("meta[property='dcterms:modified']", $metadata).text();
-            metadata.ncx = $("spine", xmlDom).attr("toc") ? $("spine", xmlDom).attr("toc") : "";
+            metadata.modified_date = getMetaElemPropertyText(metadataElem, "dcterms:modified");
+            metadata.ncx = spineElem.getAttribute("toc") ? spineElem.getAttribute("toc") : "";
             metadata.pubdate = getElemText(metadataElem, "date");
             metadata.publisher = getElemText(metadataElem, "publisher");
             metadata.rights = getElemText(metadataElem, "rights");
             metadata.title = getElemText(metadataElem, "title");
 
+            metadata.rendition_orientation = getMetaElemPropertyText(metadataElem, "rendition:orientation");
+            metadata.rendition_layout = getMetaElemPropertyText(metadataElem, "rendition:layout");
+            metadata.rendition_spread = getMetaElemPropertyText(metadataElem, "rendition:spread");
+            metadata.rendition_flow = getMetaElemPropertyText(metadataElem, "rendition:flow");
 
-            metadata.rendition_orientation = $("meta[property='rendition:orientation']", $metadata).text();
-            metadata.rendition_layout = $("meta[property='rendition:layout']", $metadata).text();
-            metadata.rendition_spread = $("meta[property='rendition:spread']", $metadata).text();
-            metadata.rendition_flow = $("meta[property='rendition:flow']", $metadata).text();
+
+
+
+
+
+            //http://www.idpf.org/epub/301/spec/epub-publications.html#fxl-property-viewport
+            
+            //metadata.rendition_viewport = getMetaElemPropertyText(metadataElem, "rendition:viewport");
+            metadata.rendition_viewport = getElemText(metadataElem, "meta", function (element) {
+                return element.getAttribute("property") === "rendition:viewport" && !element.hasAttribute("refines")
+            });
+
+            var viewports = [];
+            var viewportMetaElems = filterXmlElemsByLocalNameAnyNS(metadataElem, "meta", function (element) {
+                return element.getAttribute("property") === "rendition:viewport" && element.hasAttribute("refines");
+            });
+            _.each(viewportMetaElems, function(currItem) {
+                var id = currItem.getAttribute("refines");
+                if (id) {
+                    var hash = id.indexOf('#');
+                    if (hash >= 0) {
+                        var start = hash+1;
+                        var end = id.length-1;
+                        id = id.substr(start, end);
+                    }
+                    id = id.trim();
+                }
+                
+                var vp = {
+                  refines: id,
+                  viewport: currItem.textContent
+                };
+                viewports.push(vp);
+            });
+            
+            metadata.rendition_viewports = viewports;
+
+            
+            
+            
             
             
             // Media part
             metadata.mediaItems = [];
 
-            var $overlays = $("meta[property='media:duration'][refines]", $metadata);
+            var overlayElems = filterXmlElemsByLocalNameAnyNS(metadataElem, "meta", function (element) {
+                return element.getAttribute("property") === "media:duration" && element.hasAttribute("refines");
+            });
 
-            $.each($overlays, function(elementIndex, $currItem) {
+            _.each(overlayElems, function(currItem) {
                 metadata.mediaItems.push({
-                  refines: $currItem.getAttribute("refines"),
-                  duration: SmilDocumentParser.resolveClockValue($($currItem).text())
+                  refines: currItem.getAttribute("refines"),
+                  duration: SmilDocumentParser.resolveClockValue(currItem.textContent)
                });
             });
 
             metadata.media_overlay = {
-                duration: SmilDocumentParser.resolveClockValue($("meta[property='media:duration']:not([refines])", $metadata).text()),
-                narrator: $("meta[property='media:narrator']", $metadata).text(),
-                activeClass: $("meta[property='media:active-class']", $metadata).text(),
-                playbackActiveClass: $("meta[property='media:playback-active-class']", $metadata).text(),
+                duration: SmilDocumentParser.resolveClockValue(
+                    getElemText(metadataElem, "meta", function (element) {
+                        return element.getAttribute("property") === "media:duration" && !element.hasAttribute("refines")
+                    })
+                ),
+                narrator: getMetaElemPropertyText(metadataElem, "media:narrator"),
+                activeClass: getMetaElemPropertyText(metadataElem, "media:active-class"),
+                playbackActiveClass: getMetaElemPropertyText(metadataElem, "media:playback-active-class"),
                 smil_models: [],
                 skippables: ["sidebar", "practice", "marginalia", "annotation", "help", "note", "footnote", "rearnote",
                     "table", "table-row", "table-cell", "list", "list-item", "pagebreak"],
@@ -241,7 +322,7 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
 
         function getJsonManifest(xmlDom) {
 
-            var $manifestItems = $("manifest", xmlDom).children();
+            var $manifestItems = $(findXmlElemByLocalNameAnyNS(xmlDom, "manifest")).children();
             var jsonManifest = [];
 
             $.each($manifestItems, function (manifestElementIndex, currManifestElement) {
@@ -270,7 +351,7 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
 
         function getJsonBindings(xmlDom) {
 
-            var $bindings = $("bindings", xmlDom).children();
+            var $bindings = $(findXmlElemByLocalNameAnyNS(xmlDom, "bindings")).children();
             var jsonBindings = [];
 
             $.each($bindings, function (bindingElementIndex, currBindingElement) {
@@ -292,28 +373,37 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
 
             var manifest;
             var $imageNode;
-            manifest = xmlDom.getElementsByTagName('manifest')[0];
+            manifest = findXmlElemByLocalNameAnyNS(xmlDom, "manifest");
 
             // epub3 spec for a cover image is like this:
             /*<item properties="cover-image" id="ci" href="cover.svg" media-type="image/svg+xml" />*/
-            $imageNode = $('item[properties~="cover-image"]', manifest);
+            $imageNode = $(findXmlElemByLocalNameAnyNS(manifest, "item", function (element) {
+                var attr = element.getAttribute("properties");
+                return attr && _.contains(attr.split(" "), "cover-image");
+            }));
             if ($imageNode.length === 1 && $imageNode.attr("href")) {
                 return $imageNode.attr("href");
             }
 
             // some epub2's cover image is like this:
             /*<meta name="cover" content="cover-image-item-id" />*/
-            var metaNode = $('meta[name="cover"]', xmlDom);
+            var metaNode = $(findXmlElemByLocalNameAnyNS(xmlDom, "meta", function (element) {
+                return element.getAttribute("name") === "cover";
+            }));
             var contentAttr = metaNode.attr("content");
             if (metaNode.length === 1 && contentAttr) {
-                $imageNode = $('item[id="' + contentAttr + '"]', manifest);
+                $imageNode = $(findXmlElemByLocalNameAnyNS(manifest, "item", function (element) {
+                    return element.getAttribute("id") === contentAttr;
+                }));
                 if ($imageNode.length === 1 && $imageNode.attr("href")) {
                     return $imageNode.attr("href");
                 }
             }
 
             // that didn't seem to work so, it think epub2 just uses item with id=cover
-            $imageNode = $('#cover', manifest);
+            $imageNode = $(findXmlElemByLocalNameAnyNS(manifest, "item", function (element) {
+                return element.getAttribute("id") === "cover";
+            }));
             if ($imageNode.length === 1 && $imageNode.attr("href")) {
                 return $imageNode.attr("href");
             }
