@@ -94,6 +94,11 @@ var requirejs = {
             name: 'URIjs',
             location: 'lib/URIjs',
             main: 'URI'
+        },
+        {
+            name: 'xmldom',
+            location: 'lib/xmldom',
+            main: 'dom-parser'
         }
 
     ],

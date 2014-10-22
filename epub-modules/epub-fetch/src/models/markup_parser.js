@@ -11,23 +11,36 @@
 //  used to endorse or promote products derived from this software without specific 
 //  prior written permission.
 
-define(
-    function () {
+define(['xmldom'],
+    function (xmldom) {
 
-        var MarkupParser = function (){
+        var MarkupParser = function () {
 
             var self = this;
 
-            this.parseXml = function(xmlString) {
+            this.parseXml = function (xmlString) {
                 return self.parseMarkup(xmlString, 'text/xml');
             };
 
-            this.parseMarkup = function(markupString, contentType) {
+            this.parseMarkup = function (markupString, contentType) {
                 var parser = new window.DOMParser;
-                return parser.parseFromString(markupString, contentType);
+
+                var dom = null;
+                try {
+                    dom = parser.parseFromString(markupString, contentType);
+                } catch (ex) {
+                    console.error(ex);
+                }
+                //check for an empty result (native browser xml parsing problems)
+                if (!dom || !dom.childNodes || !dom.childNodes.length || dom.getElementsByTagNameNS("*", "parsererror").length) {
+                    console.log('Need to use fallback DOMParser implementation');
+                    parser = new xmldom.DOMParser;
+                    dom = parser.parseFromString(markupString, contentType);
+                }
+                return dom;
             };
 
         };
-
         return MarkupParser;
-});
+    }
+);
