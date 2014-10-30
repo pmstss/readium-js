@@ -60,6 +60,7 @@ var requirejs = {
         
 
         domReady : 'lib/domReady',
+        crypto: 'lib/2.5.3-crypto-sha1',
         
         rangy : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy',
         "rangy-core" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-core',
@@ -339,8 +340,11 @@ var requirejs = {
         annotationsManager: {
             deps: ['epubCfi', 'annotations_module'],
             exports:'annotationsManager'
-        }
+        },
 
+        crypto: {
+            exports: 'Crypto'
+        }
     },
 
     exclude: ['jquery', 'underscore', 'backbone', 'URIjs']
