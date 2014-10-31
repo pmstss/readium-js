@@ -70,7 +70,6 @@ var requirejs = {
         "rangy-position" : 'epub-modules/epub-renderer/src/readium-shared-js/lib/rangy/rangy-position',
 
         modernizr: 'lib/modernizr.min',
-        crypto: 'lib/2.5.3-crypto-sha1',
         
         Readium: 'epub-modules/Readium'
     },
