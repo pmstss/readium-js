@@ -11,7 +11,7 @@
 //  used to endorse or promote products derived from this software without specific 
 //  prior written permission.
 
-define(['crypto'], function (crypto) {
+define(['require', 'module'], function (require, module) {
 
     var EncryptionHandler = function (encryptionData) {
         var self = this;
