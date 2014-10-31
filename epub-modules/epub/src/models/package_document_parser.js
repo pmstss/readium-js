@@ -139,6 +139,11 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
                 var idref = $currSpineElement.attr("idref") ? $currSpineElement.attr("idref") : "";
                 var manifestItem = manifest.getManifestItemByIdref(idref);
 
+                if (!manifestItem) {
+                    console.warn("PackageDocumentParser: spineItem (" + idref + ") with no manifestItem!");
+                    return;
+                }
+
                 var id = $currSpineElement.attr("id");
                 var viewport = undefined;
                 _.each(metadata.rendition_viewports, function(vp) {
@@ -159,17 +164,10 @@ define(['require', 'module', 'jquery', 'underscore', 'backbone', 'epub-fetch/mar
                     properties: $currSpineElement.attr("properties") ? $currSpineElement.attr("properties") : ""
                 };
 
-                var manifestItem = _.find(manifest, function(item){
-                    return item.id === spineItem.idref;
-                });
                 var parsedProperties = parsePropertiesString(spineItem.properties);
                 _.extend(spineItem, parsedProperties);
 
-                if (manifestItem) {
-                    jsonSpine.push(spineItem);
-                } else {
-                    console.warn("PackageDocumentParser: spineItem (" + spineItem.idref + ") with no manifestItem!");
-                }
+                jsonSpine.push(spineItem);
             });
 
             return jsonSpine;
