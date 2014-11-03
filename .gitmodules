@@ -1,3 +1,3 @@
 [submodule "epub-modules/epub-renderer/src/readium-shared-js"]
 	path = epub-modules/epub-renderer/src/readium-shared-js
-url=ssh://gitolite@lumberjack.evidentpoint.com/epreadium-shared-js
+    url=git@bitbucket.org:evidentpoint/readium-shared-js.git
