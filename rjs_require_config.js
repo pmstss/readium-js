@@ -18,6 +18,7 @@ var requirejs = {
 
         text: 'lib/text/text',
         console_shim: 'lib/console_shim',
+        blob_shim: 'lib/blob',
         jquery: 'lib/jquery-1.11.0',
         underscore: 'lib/underscore-1.4.4',
         backbone: 'lib/backbone-0.9.10',
