@@ -11,9 +11,9 @@
 //  used to endorse or promote products derived from this software without specific 
 //  prior written permission.
 
-define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip_resource_fetcher',
-    './content_document_fetcher', './resource_cache', './encryption_handler'],
-    function (require, module, $, URI, MarkupParser, PlainResourceFetcher, ZipResourceFetcher, ContentDocumentFetcher,
+define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip_resource_fetcher', './intel_resource_fetcher',
+    './content_document_fetcher', './resource_cache', './encryption_handler', './intel_resource_fetcher'],
+    function (require, module, $, URI, MarkupParser, PlainResourceFetcher, ZipResourceFetcher, IntelResourceFetcher, ContentDocumentFetcher,
               ResourceCache, EncryptionHandler) {
 
     var PublicationFetcher = function(bookRoot, jsLibRoot, sourceWindow, cacheSizeEvictThreshold) {
@@ -69,6 +69,7 @@ define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_reso
         }
 
         function createResourceFetcher(isExploded, callback) {
+            var isIntelEncryption = true;
             if (isExploded) {
                 console.log('using new PlainResourceFetcher');
                 _resourceFetcher = new PlainResourceFetcher(self, bookRoot);
@@ -76,6 +77,11 @@ define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_reso
                     callback(_resourceFetcher);
                 });
                 return;
+
+            } else if (isIntelEncryption) {
+                console.log("using IntelResourceFetcher");
+                _resourceFetcher = new IntelResourceFetcher(self, bookRoot);
+                callback(_resourceFetcher);
             } else {
                 console.log('using new ZipResourceFetcher');
                 _resourceFetcher = new ZipResourceFetcher(self, bookRoot, jsLibRoot);
