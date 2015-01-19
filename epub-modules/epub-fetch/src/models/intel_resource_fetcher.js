@@ -11,7 +11,7 @@
 //  used to endorse or promote products derived from this software without specific 
 //  prior written permission.
 
-define(['require', 'module', 'jquery', 'URIjs', './discover_content_type'], function (require, module, $, URI, ContentTypeDiscovery) {
+define(['require', 'module', 'jquery', 'URIjs', './discover_content_type', './native2js_emulator'], function (require, module, $, URI, ContentTypeDiscovery, Native2J) {
 
     var IntelResourceFetcher = function(parentFetcher, baseUrl) {
 
