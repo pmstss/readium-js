@@ -11,41 +11,47 @@
 //  used to endorse or promote products derived from this software without specific 
 //  prior written permission.
 
-define(['require', 'module', 'jquery', 'URIjs', './discover_content_type', './native2js_emulator'], function (require, module, $, URI, ContentTypeDiscovery, Native2J) {
+define(['require', 'module', 'jquery', 'URIjs', './discover_content_type', './intel_native_interface', './typed_arrays_util'], function (require, module, $, URI, ContentTypeDiscovery, IntelNativeInterface, TypedArraysUtil) {
 
     var IntelResourceFetcher = function(parentFetcher, baseUrl) {
 
         console.log("Initializing IntelResourceFetcher");
+        console.log("baseUrl = " + baseUrl);
+
+        if (baseUrl.charAt(baseUrl.length - 1) !== '/') {
+            baseUrl += '/';
+        }
 
         // INTERNAL FUNCTIONS
 
 
         var TEXT = 'text';
-        var ARRAYBUFFER = 'arraybuffer';
+        var TYPEDARRAY = 'typedArray';
+        var DATA64URI = 'data64uri';
 
-        // TODO: replace with the bridge implementation.
-        function resolveURI(pathRelativeToPackageRoot) {
-            return "http://localhost:8080/epub_content/epub_sample/" + pathRelativeToPackageRoot;
-        }
 
         function fetchFileContents(pathRelativeToPackageRoot, type, readCallback, onerror) {
-            var fileUrl = resolveURI(pathRelativeToPackageRoot);
+
 
             if (typeof pathRelativeToPackageRoot === 'undefined') {
                 throw 'Fetched file relative path is undefined!';
             }
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', fileUrl, true);
-            xhr.responseType = type;
-            xhr.onerror = onerror;
-
-            xhr.onload = function (loadEvent) {
-                readCallback(xhr.response);
+            var fetchCallback = function(byteArray){
+                if(byteArray === null){
+                    readCallback(null);
+                    return;
+                }
+                if (type === TEXT) {
+                    readCallback(TypedArraysUtil.UTF8ArrToStr(byteArray));
+                } else if (type === DATA64URI) {
+                    readCallback(TypedArraysUtil.base64EncArr(byteArray));
+                } else if (type === TYPEDARRAY) {
+                    readCallback(byteArray);
+                }
             };
-
-            xhr.send();
-        };
+            IntelNativeInterface.fetchFileByteArray(baseUrl + pathRelativeToPackageRoot, fetchCallback, onerror)
+        }
 
         // PUBLIC API
 
@@ -61,13 +67,16 @@ define(['require', 'module', 'jquery', 'URIjs', './discover_content_type', './na
 
         this.fetchFileContentsData64Uri = function(pathRelativeToPackageRoot, fetchCallback, onerror) {
             console.log("IntelResourceFetcher::fetchFileContentsData64Uri " + pathRelativeToPackageRoot);
-            fetchFileContents(pathRelativeToPackageRoot, TEXT, fetchCallback, onerror);
+            fetchFileContents(pathRelativeToPackageRoot, DATA64URI, function (contentBase64) {
+                var type = ContentTypeDiscovery.identifyContentTypeFromFileName(pathRelativeToPackageRoot);
+                fetchCallback("data:" + type + ";base64," + contentBase64);
+            }, onerror);
         };
 
         this.fetchFileContentsBlob = function(pathRelativeToPackageRoot, fetchCallback, onerror) {
             console.log("IntelResourceFetcher::fetchFileContentsBlob " + pathRelativeToPackageRoot);
-                        fetchFileContents(pathRelativeToPackageRoot, ARRAYBUFFER, function (contentsArrayBuffer) {
-                var blob = new Blob([contentsArrayBuffer], {
+            fetchFileContents(pathRelativeToPackageRoot, TYPEDARRAY, function (contentsArray) {
+                var blob = new Blob([contentsArray], {
                     type: ContentTypeDiscovery.identifyContentTypeFromFileName(pathRelativeToPackageRoot)
                 });
                 fetchCallback(blob);

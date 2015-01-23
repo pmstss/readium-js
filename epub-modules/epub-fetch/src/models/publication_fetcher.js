@@ -16,7 +16,7 @@ define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_reso
     function (require, module, $, URI, MarkupParser, PlainResourceFetcher, ZipResourceFetcher, IntelResourceFetcher, ContentDocumentFetcher,
               ResourceCache, EncryptionHandler) {
 
-    var PublicationFetcher = function(bookRoot, jsLibRoot, sourceWindow, cacheSizeEvictThreshold) {
+    var PublicationFetcher = function(bookRoot, jsLibRoot, sourceWindow, options) {
 
         var self = this;
 
@@ -32,8 +32,8 @@ define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_reso
         var _packageFullPath;
         var _packageDom;
         var _packageDomInitializationDeferred;
-        var _publicationResourcesCache = new ResourceCache(sourceWindow, cacheSizeEvictThreshold);
-
+        var _publicationResourcesCache = new ResourceCache(sourceWindow, options.cacheSizeEvictThreshold);
+        var _useIntelResourceFetcher = options.useIntelResourceFetcher;
 
         this.markupParser = new MarkupParser();
 
@@ -63,13 +63,15 @@ define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_reso
         }
 
         function isExploded() {
-
+            if (_useIntelResourceFetcher) {
+                return false; //in reality it can be exploded or not, but passing false here is required
+            }
             var ext = ".epub";
             return bookRoot.indexOf(ext, bookRoot.length - ext.length) === -1;
         }
 
         function createResourceFetcher(isExploded, callback) {
-            var isIntelEncryption = true;
+
             if (isExploded) {
                 console.log('using new PlainResourceFetcher');
                 _resourceFetcher = new PlainResourceFetcher(self, bookRoot);
@@ -78,7 +80,7 @@ define(['require', 'module', 'jquery', 'URIjs', './markup_parser', './plain_reso
                 });
                 return;
 
-            } else if (isIntelEncryption) {
+            } else if (_useIntelResourceFetcher) {
                 console.log("using IntelResourceFetcher");
                 _resourceFetcher = new IntelResourceFetcher(self, bookRoot);
                 callback(_resourceFetcher);
