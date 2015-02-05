@@ -1,5 +1,12 @@
 define(function() {
 
+    var pendingCallbacks = {};
+
+    Native2JS.notifyRead = function(readId, base64data){
+        console.log("IntelNativeInterface::notifyRead", readId);
+        pendingCallbacks[readId](base64data);
+    };
+
     return {
         fetchFileByteArray: function(file, onload, onerror) {
             var fileLength = Native2JS.getFileSize(file);
@@ -7,13 +14,12 @@ define(function() {
                 onerror(new Error('File ' + file + ' not found.'));
                 return;
             }
-            var byteArray = Native2JS.getFileContentAsByteArray(file, 0, fileLength);
-            if (Uint8ClampedArray) {
-                byteArray = new Uint8ClampedArray(byteArray);
+            var readId = Native2JS.getFileContentAsByteArray(file, 0, fileLength);
+            if (readId) {
+                pendingCallbacks[readId] = onload;
             } else {
-                byteArray = new Uint8Array(byteArray);
+                onerror(new Error('File ' + file + ' could not be read.'))
             }
-            onload(byteArray);
         }
     };
 

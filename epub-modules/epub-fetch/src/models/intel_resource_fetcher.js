@@ -37,15 +37,16 @@ define(['require', 'module', 'jquery', 'URIjs', './discover_content_type', './in
                 throw 'Fetched file relative path is undefined!';
             }
 
-            var fetchCallback = function(byteArray){
-                if(byteArray === null){
+            var fetchCallback = function(base64data){
+                if(base64data === null){
                     readCallback(null);
                     return;
                 }
+                var byteArray = TypedArraysUtil.base64DecToArr(base64data);
                 if (type === TEXT) {
                     readCallback(TypedArraysUtil.UTF8ArrToStr(byteArray));
                 } else if (type === DATA64URI) {
-                    readCallback(TypedArraysUtil.base64EncArr(byteArray));
+                    readCallback(base64data);
                 } else if (type === TYPEDARRAY) {
                     readCallback(byteArray);
                 }
