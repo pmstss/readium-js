@@ -2,10 +2,12 @@ define(function() {
 
     var pendingCallbacks = {};
 
-    Native2JS.notifyRead = function(readId, base64data){
-        console.log("IntelNativeInterface::notifyRead", readId);
-        pendingCallbacks[readId](base64data);
-    };
+    if (window.Native2JS) {
+        Native2JS.notifyRead = function(readId, base64data){
+            console.log("IntelNativeInterface::notifyRead", readId);
+            pendingCallbacks[readId](base64data);
+        };
+    }
 
     return {
         fetchFileByteArray: function(file, onload, onerror) {
