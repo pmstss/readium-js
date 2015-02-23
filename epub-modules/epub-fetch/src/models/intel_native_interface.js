@@ -6,6 +6,7 @@ define(function() {
         Native2JS.notifyRead = function(readId, base64data){
             console.log("IntelNativeInterface::notifyRead", readId);
             pendingCallbacks[readId](base64data);
+            delete pendingCallbacks[readId];
         };
     }
 
