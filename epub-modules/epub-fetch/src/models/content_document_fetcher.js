@@ -272,6 +272,8 @@ define(
 
                 resolvedElems.each(function (index, resolvedElem) {
                     var refAttrOrigVal = $(resolvedElem).attr(refAttr);
+                    // Store the original attr value in a data-rd-* attr (rd = readium namespace, for no conflicts)
+                    $(resolvedElem).attr('data-rd-' + refAttr.replace(':', '-'), refAttrOrigVal);
                     var refAttrUri = new URI(refAttrOrigVal);
 
                     if (refAttrUri.scheme() === '') {
