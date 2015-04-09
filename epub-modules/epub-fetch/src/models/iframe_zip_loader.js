@@ -15,7 +15,7 @@ define(['URIjs'], function(URI){
 
     var zipIframeLoader = function(ReadiumSDK, getCurrentResourceFetcher, options) {
 
-        var basicIframeLoader = new ReadiumSDK.Views.IFrameLoader();
+        var basicIframeLoader = new ReadiumSDK.Views.IFrameLoader(options);
 
         var self = this;
 
@@ -29,7 +29,7 @@ define(['URIjs'], function(URI){
         
         this.loadIframe = function(iframe, src, callback, caller, attachedData) {
 
-            var loadedDocumentUri = new URI(src).absoluteTo(iframe.baseURI).search('').hash('').toString();
+            var loadedDocumentUri = new URI(src).absoluteTo(options.baseUrl || iframe.baseURI).search('').hash('').toString();
 
             var shouldConstructDomProgrammatically = getCurrentResourceFetcher().shouldConstructDomProgrammatically();
             if (shouldConstructDomProgrammatically) {

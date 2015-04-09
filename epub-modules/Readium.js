@@ -35,13 +35,15 @@ define(['require', 'text!version.json', 'console_shim', 'blob_shim', 'jquery', '
 
         var jsLibRoot = readiumOptions.jsLibRoot;
 
-        if (!readiumOptions.useSimpleLoader){
-            readerOptions.iframeLoader = new IframeZipLoader(ReadiumSDK, function() { return _currentPublicationFetcher; }, { mathJaxUrl: readerOptions.mathJaxUrl });;
+        var iframeLoaderOptions = {mathJaxUrl: readerOptions.mathJaxUrl, baseUrl: readerOptions.baseUrl};
+        if (!readiumOptions.useSimpleLoader) {
+            readerOptions.iframeLoader = new IframeZipLoader(ReadiumSDK, function () {
+                return _currentPublicationFetcher;
+            }, iframeLoaderOptions);
         }
-        else{
-            readerOptions.iframeLoader = new ReadiumSDK.Views.IFrameLoader();
+        else {
+            readerOptions.iframeLoader = new ReadiumSDK.Views.IFrameLoader(iframeLoaderOptions);
         }
-        
 
         this.reader = new ReadiumSDK.Views.ReaderView(readerOptions);
 
@@ -60,6 +62,9 @@ define(['require', 'text!version.json', 'console_shim', 'blob_shim', 'jquery', '
                 useIntelResourceFetcher = readiumOptions.useIntelResourceFetcher;
             }
 
+            if (readerOptions.baseUrl) {
+                bookRoot = new URI(bookRoot).absoluteTo(readerOptions.baseUrl).toString();
+            }
             _currentPublicationFetcher = new PublicationFetcher(bookRoot, jsLibRoot, window, {cacheSizeEvictThreshold:cacheSizeEvictThreshold, useIntelResourceFetcher:useIntelResourceFetcher });
 
             _currentPublicationFetcher.initialize(function() {
