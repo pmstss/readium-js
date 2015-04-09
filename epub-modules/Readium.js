@@ -57,15 +57,10 @@ define(['require', 'text!version.json', 'console_shim', 'blob_shim', 'jquery', '
                 cacheSizeEvictThreshold = readiumOptions.cacheSizeEvictThreshold;
             }
 
-            var useIntelResourceFetcher = null;
-            if (readiumOptions.useIntelResourceFetcher) {
-                useIntelResourceFetcher = readiumOptions.useIntelResourceFetcher;
-            }
-
             if (readerOptions.baseUrl) {
                 bookRoot = new URI(bookRoot).absoluteTo(readerOptions.baseUrl).toString();
             }
-            _currentPublicationFetcher = new PublicationFetcher(bookRoot, jsLibRoot, window, {cacheSizeEvictThreshold:cacheSizeEvictThreshold, useIntelResourceFetcher:useIntelResourceFetcher });
+            _currentPublicationFetcher = new PublicationFetcher(bookRoot, jsLibRoot, window, {cacheSizeEvictThreshold: cacheSizeEvictThreshold});
 
             _currentPublicationFetcher.initialize(function() {
 
