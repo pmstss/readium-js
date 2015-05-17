@@ -11,7 +11,12 @@
     "grunt-contrib-requirejs": "~0.4.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-exec": "~0.4.2",
+    "grunt-karma": "latest",
     "grunt-notify": "~0.2.13",
+    "jasmine-core": "^2.3.4",
+    "karma": "latest",
+    "karma-chrome-launcher": "latest",
+    "karma-jasmine": "latest",
     "load-grunt-tasks": "~0.1.0"
   },
   "devDependenciesUnused": {
