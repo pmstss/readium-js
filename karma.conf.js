@@ -23,6 +23,9 @@ module.exports = function(config) {
             'spec/helpers/**/*.js',
             'spec/suites/**/*.js',
             'spec/almond.js',
+            {pattern: 'spec/require.js', included: false, served: true},
+            {pattern: 'spec/reader/**/*.*', included: false, served: true},
+            {pattern: 'spec/epubs/**/*.*', included: false, served: true},
             'out/*.js'
         ],
 
@@ -58,7 +61,7 @@ module.exports = function(config) {
 
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: false,
+        autoWatch: true,
 
 
         // start these browsers
