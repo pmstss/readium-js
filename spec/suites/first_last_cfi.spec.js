@@ -87,7 +87,7 @@ describe("First/Last CFI generation", function () {
             });
 
             it("has proper first visible CFI", function () {
-                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2[I_book_d1e1]/2,/1:0,/1:1");
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2[introduction]/18/8,/1:124,/1:125");
                 // ... year are ever made available ...
                 //              ^
             });
