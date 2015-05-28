@@ -18,8 +18,7 @@ describe("First/Last CFI generation", function () {
                 top: 0
             }));
 
-        window.removeEventListener('message');
-        window.addEventListener('message', function (e) {
+        var onMessage = function (e) {
             if (e.data === 'testReaderReady') {
                 var testReader = $("#testReader")[0].contentWindow.testReader;
                 reader = testReader.reader;
@@ -27,7 +26,10 @@ describe("First/Last CFI generation", function () {
                 waitForFinalPagination = testReader.waitForFinalPagination;
                 done();
             }
-        });
+        };
+
+        window.removeEventListener('message', onMessage);
+        window.addEventListener('message', onMessage);
     };
 
     describe("was setup with a test reader", function () {
@@ -80,6 +82,24 @@ describe("First/Last CFI generation", function () {
             });
         });
 
+        describe("Chapter 1 ('id-id2611884', 0)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('id-id2611884', 0);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2[introduction]/2,/1:0,/1:1");
+                // Chapter 1. Introduction
+                // ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2[introduction]/18/8,/1:255,/1:256");
+                // ... upward with more ebooks being produced ...
+                //                    ^
+            });
+        });
+
         describe("Chapter 1 ('id-id2611884', 2)", function () {
             beforeAll(function (done) {
                 reader.openSpineItemPage('id-id2611884', 2);
@@ -87,9 +107,9 @@ describe("First/Last CFI generation", function () {
             });
 
             it("has proper first visible CFI", function () {
-                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2[introduction]/18/8,/1:124,/1:125");
-                // ... year are ever made available ...
-                //              ^
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2[introduction]/18/8,/1:257,/1:258");
+                // ... upward with more ebooks being produced ...
+                //                      ^
             });
             it("has proper last visible CFI", function () {
                 expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2[introduction]/18/16,/1:321,/1:322");
