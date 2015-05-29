@@ -31,19 +31,20 @@
                 border-style: dashed;
                 border-left: 0;
                 border-top: 0;
+                z-index: 100;
             }
         </style>
     </head>
     <body>
-        <div id="readium-container">
-            <!-- Readium will manage what's inside this element -->
-        </div>
         <div id="page-buttons">
             <button id="right">Next Page</button>
             <button id="left">Previous Page</button>
             <button id="bookmark">Bookmark</button>
             <button id="pageinfo">Page info</button>
             <button id="reflowinfo">Reflowable info</button>
+        </div>
+        <div id="readium-container">
+            <!-- Readium will manage what's inside this element -->
         </div>
     </body>
 </html>
