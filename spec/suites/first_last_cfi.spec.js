@@ -120,4 +120,100 @@ describe("First/Last CFI generation", function () {
 
     });
 
+    describe("with 'handcrafted'", function () {
+
+        beforeAll(function (done) {
+            setupTestReader(function () {
+                readium.openPackageDocument(EPUBS + 'handcrafted', function () {
+                    waitForFinalPagination(function () {
+                        done();
+                    });
+                });
+            });
+        });
+
+        describe("<First spine item> ('test1-wacky-tables', 0)", function () {
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/2,/1:0,/1:1");
+                // Lorem ipsum dolor sit amet
+                // ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/4/2/8[the-table]/4/18/6,/1:7,/1:8");
+                // $621,000
+                //        ^
+            });
+        });
+
+        describe("Wacky table ('test1-wacky-tables', 2)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test1-wacky-tables', 2);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/4/2/8[the-table]/4/18/8/2");
+                // <input type="text"></input>
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/4/2/10,/1:450,/1:451");
+                // .. anim id est laborum.
+                //                       ^
+            });
+        });
+
+        describe("Long text node, start ('test2-long-text-node', 0)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test2-long-text-node', 0);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/2,/1:0,/1:1");
+                // Very long text node
+                // ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/4[long-text],/1:3710,/1:3711");
+                // ... where his old limber legs was taking ...
+                //                 ^
+            });
+        });
+
+        describe("Long text node, middle ('test2-long-text-node', 2)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test2-long-text-node', 2);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/4[long-text],/1:3712,/1:3713");
+                // ... where his old limber legs was taking ...
+                //                   ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/4[long-text],/1:7647,/1:7648");
+                // ... and then cussed them all over again ...
+                //                   ^
+            });
+        });
+
+        describe("Long text node, end ('test2-long-text-node', 4)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test2-long-text-node', 4);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/4[long-text],/1:7649,/1:7650");
+                // ... and then cussed them all over again ...
+                //                     ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/6[end],/1:6,/1:7");
+                // THE END
+                //       ^
+            });
+        });
+    });
 });
