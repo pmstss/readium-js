@@ -118,6 +118,24 @@ describe("First/Last CFI generation", function () {
             });
         });
 
+        describe("Test page ('id-id2442754-test', 0)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('id-id2442754-test', 0);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2[I_book_d1e1]/2,/1:0,/1:1");
+                // Accessible EPUB 3
+                // ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2[I_book_d1e1]/24/2[id2602563]/2,/1:218,/1:219");
+                // ... trademarks of O’Reilly Media, Inc. ...
+                //                                 ^
+            });
+        });
+
     });
 
     describe("with 'handcrafted'", function () {
