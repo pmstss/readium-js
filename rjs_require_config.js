@@ -23,6 +23,7 @@ var requirejs = {
         underscore: 'lib/underscore-1.4.4',
         backbone: 'lib/backbone-0.9.10',
         bootstrap: 'lib/bootstrap.min',
+        es6collections_shim: 'epub-modules/epub-renderer/src/readium-shared-js/lib/es6-collections',
         jquerySizes: 'epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.sizes',
         readiumSDK: 'epub-modules/epub-renderer/src/readium-shared-js/js/readium_sdk',
         helpers: 'epub-modules/epub-renderer/src/readium-shared-js/js/helpers',
@@ -236,7 +237,7 @@ var requirejs = {
         },
 
         cfiNavigationLogic: {
-            deps: ['readiumSDK', 'epubCfi'],
+            deps: ['readiumSDK', 'epubCfi', 'es6collections_shim'],
             exports:'cfiNavigationLogic'
         },
 
