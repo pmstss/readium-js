@@ -58,7 +58,7 @@ describe("First/Last CFI generation", function () {
         });
     });
 
-    describe("with 'accessible_epub_3'", function () {
+    describe("with 'accessible_epub_3' epub:", function () {
 
         beforeAll(function (done) {
             setupTestReader(function () {
@@ -138,7 +138,7 @@ describe("First/Last CFI generation", function () {
 
     });
 
-    describe("with 'handcrafted'", function () {
+    describe("with 'handcrafted' epub:", function () {
 
         beforeAll(function (done) {
             setupTestReader(function () {
@@ -231,6 +231,60 @@ describe("First/Last CFI generation", function () {
                 expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/6[end],/1:6,/1:7");
                 // THE END
                 //       ^
+            });
+        });
+
+        describe("Multiple text nodes as children of a leaf node, start ('test3-multiple-child-text-nodes', 0)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test3-multiple-child-text-nodes', 0);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/2,/1:0,/1:1");
+                // Multiple text nodes as children of a leaf node
+                // ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/4[first-leaf-node],/7:773,/7:774");
+                // ... velit esse cillum dolore eu fugiat ...
+                //                     ^
+            });
+        });
+
+        describe("Multiple text nodes as children of a leaf node, middle ('test3-multiple-child-text-nodes', 2)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test3-multiple-child-text-nodes', 2);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/4[first-leaf-node],/7:775,/7:776");
+                // ... velit esse cillum dolore eu fugiat ...
+                //                       ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/6[second-leaf-node],/5:829,/5:830");
+                // ... Excepteur sint occaecat cupidatat non proident ...
+                //                           ^
+            });
+        });
+
+        describe("Multiple text nodes as children of a leaf node, end ('test3-multiple-child-text-nodes', 4)", function () {
+            beforeAll(function (done) {
+                reader.openSpineItemPage('test3-multiple-child-text-nodes', 4);
+                waitForFinalPagination(done);
+            });
+
+            it("has proper first visible CFI", function () {
+                expect(reader.getFirstVisibleCfi().contentCFI).toBe("/4/2/6[second-leaf-node],/5:831,/5:832");
+                // ... Excepteur sint occaecat cupidatat non proident ...
+                //                             ^
+            });
+            it("has proper last visible CFI", function () {
+                expect(reader.getLastVisibleCfi().contentCFI).toBe("/4/2/6[second-leaf-node],/9:916,/9:917");
+                // ... mollit anim id est laborum.
+                //                               ^
             });
         });
     });
