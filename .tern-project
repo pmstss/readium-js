@@ -1,0 +1,21 @@
+{
+  "libs": [
+    "browser",
+    "ecma5",
+    "ecma6",
+    "jquery"
+  ],
+  "loadEagerly": [
+    "epub-modules/*.js",
+    "epub-modules/epub/**/*.js",
+    "epub-modules/epub-fetch/**/*.js",
+    "epub-modules/epub-renderer/src/readium-shared-js/js/**/*.js"
+  ],
+  "plugins": {
+    "complete_strings": {},
+    "lint": {},
+    "doc_comment": {
+     "fullDocs": true
+    }
+  }
+}
