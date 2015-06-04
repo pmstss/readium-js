@@ -288,4 +288,37 @@ describe("First/Last CFI generation", function () {
             });
         });
     });
+    describe("with 'SmokeTestFXL'", function () {
+            beforeAll(function (done) {
+                setupTestReader(function () {
+                    readium.openPackageDocument(EPUBS + 'SmokeTestFXL', function () {
+                        waitForFinalPagination(function () {
+                            done();
+                        });
+                    });
+                });
+            });
+
+            describe("Verify that multimedia-06 spine loads", function () {
+                beforeAll(function (done) {
+                    reader.openSpineItemPage('multimedia-06', 0);
+                    waitForFinalPagination(done);
+                });
+
+                it("has proper first visible CFI", function () {
+                    var firstVisibleCfi = reader.getFirstVisibleCfi();
+                    expect(firstVisibleCfi.contentCFI).toBe("/4/2/2/2[video],/1:0,/1:1");
+                    expect(firstVisibleCfi.idref).toBe("multimedia-05");
+                    // ... and then cussed them all over again ...
+                    //                     ^
+                });
+
+                it("has proper last visible CFI", function () {
+                    var lastVisibleCfi = reader.getLastVisibleCfi();
+                    expect(lastVisibleCfi.contentCFI).toBe("/4/10[bottom]");
+                    expect(lastVisibleCfi.idref).toBe("multimedia-06");
+                });
+            });
+    });
+
 });
