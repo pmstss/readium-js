@@ -132,13 +132,17 @@ module.exports = function(grunt) {
                 }
             }
         },
-
-
+        karma: {
+            local: {
+                configFile: 'karma.conf.js'
+            }
+        }
     });
-    
+
 
     require('load-grunt-tasks')(grunt);
     
     grunt.registerTask('default', ['versioning', 'requirejs']);
+    grunt.registerTask('test', ['default', 'karma:local']);
 
 };
