@@ -121,6 +121,12 @@ devDependencies:
 # see readium-cfi-js:
 # "cson", "jshint", "glob", "rimraf", "mkdirp", "watch", "live-reload"
 
+# And these are for testing
+    "jasmine-core": "^2.3.4"
+    "karma": "latest"
+    "karma-chrome-launcher": "latest"
+    "karma-jasmine": "latest"
+
 
 #####################################################################
 scripts:

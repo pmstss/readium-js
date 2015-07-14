@@ -13,18 +13,18 @@
 
 define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './discover_content_type'], function(URI, IFrameLoader, _, ContentTypeDiscovery){
 
-    var zipIframeLoader = function( getCurrentResourceFetcher, contentDocumentTextPreprocessor) {
+    var zipIframeLoader = function(getCurrentResourceFetcher, options) {
 
         var isIE = (window.navigator.userAgent.indexOf("Trident") > 0);
             
-        var basicIframeLoader = new IFrameLoader();
+        var basicIframeLoader = new IFrameLoader(options);
 
         var self = this;
 
-        var _contentDocumentTextPreprocessor = contentDocumentTextPreprocessor;
+        var _contentDocumentTextPreprocessor = options.contentDocumentTextPreprocessor;
 
-        this.addIFrameEventListener = function (eventName, callback, context) {
-            basicIframeLoader.addIFrameEventListener(eventName, callback, context);
+        this.addIFrameEventListener = function(eventName, callback, context, _options) {
+            basicIframeLoader.addIFrameEventListener(eventName, callback, context, _options);
         };
 
         this.updateIframeEvents = function (iframe) {
@@ -60,7 +60,7 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
             iframe.setAttribute("data-baseUri", iframe.baseURI);
             
 
-            var loadedDocumentUri = new URI(src).absoluteTo(iframe.baseURI).search('').hash('').toString();
+            var loadedDocumentUri = new URI(src).absoluteTo(options.baseUrl || iframe.baseURI).search('').hash('').toString();
 
             console.log("EPUB doc iframe LOAD URI:");
             console.log(loadedDocumentUri);

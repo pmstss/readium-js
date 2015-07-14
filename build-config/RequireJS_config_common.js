@@ -47,11 +47,19 @@ require.config({
                 process._RJS_rootDir(2) + '/node_modules/crypto-js',
 
             main: 'core'
+        },
+        {
+            name: 'xmldom',
+            location: 'lib/xmldom',
+            main: 'dom-parser'
         }
     ],
 
     paths:
     {
+        'modernizr': 'lib/modernizr.min',
+        'blob_shim': 'lib/blob',
+
         // ------ NPM MODULEs
 
         text:

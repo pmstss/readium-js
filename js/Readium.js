@@ -12,15 +12,13 @@
 //  prior written permission.
 
 
-define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/reader_view', 'readium_js/epub-fetch/publication_fetcher',
-        'readium_js/epub-model/package_document_parser', 'readium_js/epub-fetch/iframe_zip_loader', 'readium_shared_js/views/iframe_loader'
+define(['text!version.json', 'console_shim', 'blob_shim', 'modernizr', 'jquery', 'underscore', 'readium_shared_js/views/reader_view', 'readium_js/epub-fetch/publication_fetcher',
+        'epub-model/package_document_parser', 'epub-fetch/iframe_zip_loader', 'readium_shared_js/views/iframe_loader'
         ],
-    function (versionText, $, _, ReaderView, PublicationFetcher,
-              PackageParser, IframeZipLoader, IframeLoader) {
+    function (versionText, console_shim, blob_shim, modernizr, $, _, ReaderView, PublicationFetcher, PackageParser, IframeZipLoader) {
+
 
     var Readium = function(readiumOptions, readerOptions){
-
-        var _options = { mathJaxUrl: readerOptions.mathJaxUrl };
 
         var _contentDocumentTextPreprocessor = function(src, contentDocumentHtml) {
 
@@ -51,6 +49,13 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             return contentDocumentHtml;
         };
 
+        var _options = {
+            mathJaxUrl: readerOptions.mathJaxUrl,
+            baseUrl: readerOptions.baseUrl,
+            contentDocumentTextPreprocessor: _contentDocumentTextPreprocessor,
+            cacheSizeEvictThreshold: readiumOptions.cacheSizeEvictThreshold
+        };
+
         var self = this;
 
         var _currentPublicationFetcher;
@@ -58,10 +63,10 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
         var jsLibRoot = readiumOptions.jsLibRoot;
 
         if (!readiumOptions.useSimpleLoader){
-            readerOptions.iframeLoader = new IframeZipLoader(function() { return _currentPublicationFetcher; }, _contentDocumentTextPreprocessor);
+            readerOptions.iframeLoader = new IframeZipLoader(function() { return _currentPublicationFetcher; }, _options);
         }
         else{
-            readerOptions.iframeLoader = new IframeLoader();
+            readerOptions.iframeLoader = new IframeLoader(_options);
         }
 
         // Chrome extension and cross-browser cloud reader build configuration uses this scaling method across the board (no browser sniffing for Chrome)
@@ -71,21 +76,19 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
         readerOptions.needsFixedLayoutScalerWorkAround = true;
 
         this.reader = new ReaderView(readerOptions);
-        ReadiumSDK.reader = this.reader;
 
         this.openPackageDocument = function(bookRoot, callback, openPageRequest)  {
             if (_currentPublicationFetcher) {
                 _currentPublicationFetcher.flushCache();
             }
 
-            var cacheSizeEvictThreshold = null;
-            if (readiumOptions.cacheSizeEvictThreshold) {
-                cacheSizeEvictThreshold = readiumOptions.cacheSizeEvictThreshold;
+
+            if (_options.baseUrl) {
+                bookRoot = new URI(bookRoot).absoluteTo(readerOptions.baseUrl).toString();
             }
+            _currentPublicationFetcher = new PublicationFetcher(bookRoot, jsLibRoot, window, _options);
 
-            _currentPublicationFetcher = new PublicationFetcher(bookRoot, jsLibRoot, window, cacheSizeEvictThreshold, _contentDocumentTextPreprocessor);
-
-            _currentPublicationFetcher.initialize(function(resourceFetcher) {
+            _currentPublicationFetcher.initialize(function() {
 
                 var _packageParser = new PackageParser(bookRoot, _currentPublicationFetcher);
 
@@ -116,7 +119,12 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             }
         };
 
-        ReadiumSDK.emit(ReadiumSDK.Events.READER_INITIALIZED, ReadiumSDK.reader);
+
+        //we need global access to the reader object for automation test being able to call it's APIs
+        ReadiumSDK.reader = this.reader;
+        ReadiumSDK.readiumJs = this;
+
+        ReadiumSDK.trigger(ReadiumSDK.Events.READER_INITIALIZED, this.reader);
     };
 
     Readium.version = JSON.parse(versionText);

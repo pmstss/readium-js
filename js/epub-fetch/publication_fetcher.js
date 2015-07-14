@@ -16,7 +16,7 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
     function ($, URI, MarkupParser, PlainResourceFetcher, ZipResourceFetcher, ContentDocumentFetcher,
               ResourceCache, EncryptionHandler, ContentTypeDiscovery) {
 
-    var PublicationFetcher = function(bookRoot, jsLibRoot, sourceWindow, cacheSizeEvictThreshold, contentDocumentTextPreprocessor) {
+    var PublicationFetcher = function(bookRoot, jsLibRoot, sourceWindow, options) {
 
         var self = this;
 
@@ -33,9 +33,9 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
         var _packageDocumentAbsoluteUrl;
         var _packageDom;
         var _packageDomInitializationDeferred;
-        var _publicationResourcesCache = new ResourceCache(sourceWindow, cacheSizeEvictThreshold);
+        var _publicationResourcesCache = new ResourceCache(sourceWindow, options.cacheSizeEvictThreshold);
 
-        var _contentDocumentTextPreprocessor = contentDocumentTextPreprocessor;
+        var _contentDocumentTextPreprocessor = options.contentDocumentTextPreprocessor;
 
         this.markupParser = new MarkupParser();
 
@@ -81,12 +81,12 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
         }
 
         function isExploded() {
-
             var ext = ".epub";
             return bookRoot.indexOf(ext, bookRoot.length - ext.length) === -1;
         }
 
         function createResourceFetcher(isExploded, callback) {
+
             if (isExploded) {
                 console.log('using new PlainResourceFetcher');
                 _resourceFetcher = new PlainResourceFetcher(self, bookRoot);
