@@ -50,15 +50,15 @@ require.config({
         },
         {
             name: 'xmldom',
-            location: 'lib/xmldom',
+            location: process._RJS_rootDir(2) +'/lib/xmldom',
             main: 'dom-parser'
         }
     ],
 
     paths:
     {
-        'modernizr': 'lib/modernizr.min',
-        'blob_shim': 'lib/blob',
+        'modernizr': process._RJS_rootDir(2) +'/lib/modernizr.min',
+        'blob_shim': process._RJS_rootDir(2) +'/lib/blob',
 
         // ------ NPM MODULEs
 

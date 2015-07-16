@@ -13,7 +13,7 @@
 
 
 define(['text!version.json', 'console_shim', 'blob_shim', 'modernizr', 'jquery', 'underscore', 'readium_shared_js/views/reader_view', 'readium_js/epub-fetch/publication_fetcher',
-        'epub-model/package_document_parser', 'epub-fetch/iframe_zip_loader', 'readium_shared_js/views/iframe_loader'
+        'readium_js/epub-model/package_document_parser', 'readium_js/epub-fetch/iframe_zip_loader', 'readium_shared_js/views/iframe_loader'
         ],
     function (versionText, console_shim, blob_shim, modernizr, $, _, ReaderView, PublicationFetcher, PackageParser, IframeZipLoader) {
 
@@ -124,7 +124,7 @@ define(['text!version.json', 'console_shim', 'blob_shim', 'modernizr', 'jquery',
         ReadiumSDK.reader = this.reader;
         ReadiumSDK.readiumJs = this;
 
-        ReadiumSDK.trigger(ReadiumSDK.Events.READER_INITIALIZED, this.reader);
+        ReadiumSDK.emit(ReadiumSDK.Events.READER_INITIALIZED, this.reader);
     };
 
     Readium.version = JSON.parse(versionText);
