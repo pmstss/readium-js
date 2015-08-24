@@ -1,7 +1,7 @@
 
 require(["readium_shared_js/globalsSetup"], function () {
-    
-    
+
+
     // TODO: unfortunately this is not a reliable method to discover AMD module availability with RequireJS, because:
     // 1) Almond does not implement .specified() and/or .defined()
     // 2) Package names always return false?
@@ -12,27 +12,27 @@ require(["readium_shared_js/globalsSetup"], function () {
     if (!require.defined) {
         console.log("!require.defined => using RequireJS-Almond as AMD loader?");
     }
-    
-    if (require.specified && require.specified('readium_plugin_annotations')) {    
-    //if (require.specified && require.specified('readium_plugin_annotations/main')) {
-    //if (require.specified && require.specified('readium_shared_js/plugins/annotations/main') {
-    
-        //alert("readium_plugin_annotations");
-        require(['readium_plugin_annotations'], function (annotationPluginConfig) {
-            console.log("readium_plugin_annotations:");
+
+    if (require.specified && require.specified('readium_plugin_highlights')) {
+    //if (require.specified && require.specified('readium_plugin_highlights/main')) {
+    //if (require.specified && require.specified('readium_shared_js/plugins/highlights/main') {
+
+        //alert("readium_plugin_highlights");
+        require(['readium_plugin_highlights'], function (annotationPluginConfig) {
+            console.log("readium_plugin_highlights:");
             console.debug(annotationPluginConfig);
-        });   
+        });
     }
 
     if (require.specified && require.specified('readium_plugin_example')) {
     //if (require.specified && require.specified('readium_plugin_example/main')) {
     //if (require.specified && require.specified('readium_shared_js/plugins/example/main')) {
-    
+
         //alert("readium_plugin_example");
           require(['readium_plugin_example'], function (examplePluginConfig) {
                 console.log("readium_plugin_example:");
                 console.debug(examplePluginConfig);
-              
+
                 examplePluginConfig.borderColor = "blue";
                 examplePluginConfig.backgroundColor = "cyan";
           });
@@ -134,16 +134,16 @@ require(["readium_shared_js/globalsSetup"], function () {
             ReadiumSDK.on(ReadiumSDK.Events.PLUGINS_LOADED, function(reader) {
 
                 // readium built-in (should have been require()'d outside this scope)
-                console.log(reader.plugins.annotations);
-                if (reader.plugins.annotations) {
-                    reader.plugins.annotations.initialize({annotationCSSUrl: readerOptions.annotationCSSUrl});
-                    reader.plugins.annotations.on("annotationClicked", function(type, idref, cfi, id) {
+                console.log(reader.plugins.highlights);
+                if (reader.plugins.highlights) {
+                    reader.plugins.highlights.initialize({annotationCSSUrl: readerOptions.annotationCSSUrl});
+                    reader.plugins.highlights.on("annotationClicked", function(type, idref, cfi, id) {
                         console.log("ANNOTATION CLICK: " + id);
-                        reader.plugins.annotations.removeHighlight(id);
+                        reader.plugins.highlights.removeHighlight(id);
                     });
-                    reader.plugins.annotations.on("textSelectionEvent", function() {
+                    reader.plugins.highlights.on("textSelectionEvent", function() {
                         console.log("ANNOTATION SELECT");
-                        reader.plugins.annotations.addSelectionHighlight(Math.floor((Math.random()*1000000)), "highlight");
+                        reader.plugins.highlights.addSelectionHighlight(Math.floor((Math.random()*1000000)), "highlight");
                     });
                 }
 
