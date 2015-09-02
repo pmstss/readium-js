@@ -126,6 +126,7 @@ devDependencies:
     "karma": "latest"
     "karma-chrome-launcher": "latest"
     "karma-jasmine": "latest"
+    "karma-spec-reporter": "latest"
 
 
 #####################################################################
