@@ -3,7 +3,21 @@
     <head>
         <meta charset="utf-8">
         <title>Minimal Reader</title>
-        <script data-main="loader.js" src="../require.js" type="text/javascript"></script>
+
+        <script type="text/javascript" src="../../readium-shared-js/readium-cfi-js/node_modules/requirejs/require.js"> </script>
+        <script type="text/javascript" src="../../build-config/RequireJS_config_browser.js"> </script>
+        <script type="text/javascript">
+            window.process._RJS_baseUrl = function(n)
+            {
+                return "../../";
+            };
+        </script>
+        <script type="text/javascript" src="../../readium-shared-js/build-config/RequireJS_config_common.js"> </script>
+        <script type="text/javascript" src="../../readium-shared-js/readium-cfi-js/build-config/RequireJS_config_common.js"> </script>
+        <script type="text/javascript" src="../../build-config/RequireJS_config_common.js"> </script>
+        <script type="text/javascript" src="../../readium-shared-js/build-config/RequireJS_config_plugins.js"> </script>
+        <script type="text/javascript" src="loader.js"> </script>
+
         <link rel="stylesheet" href="readium.css">
         <style>
             #page-buttons {
