@@ -164,7 +164,7 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
 
                         var mimetype = ContentTypeDiscovery.identifyContentTypeFromFileName(refAttrOrigVal_RelativeToPackage);
                         
-                        var childIframeLoader = new zipIframeLoader(getCurrentResourceFetcher, contentDocumentTextPreprocessor);
+                        var childIframeLoader = new zipIframeLoader(getCurrentResourceFetcher, _contentDocumentTextPreprocessor);
                         childIframeLoader.loadIframe(
                             child_iframe.frameElement,
                             childSrc,
