@@ -209,6 +209,11 @@ scripts:
     '
 
 #=====================
+    test: '
+        karma start --singleRun
+    '
+
+#=====================
     'genPluginsConfig': '
         cd readium-shared-js/
         &&
