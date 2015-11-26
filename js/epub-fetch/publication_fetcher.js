@@ -406,8 +406,8 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
 
         // Currently needed for deobfuscating fonts
         this.setPackageMetadata = function(packageMetadata, settingFinishedCallback) {
-
-            self.getXmlFileDom('/META-INF/encryption.xml', function (encryptionDom) {
+            // ### tss: skip encryption for now to avoid extra request (that fails for all available epubs)
+            /*self.getXmlFileDom('/META-INF/encryption.xml', function (encryptionDom) {
 
                 var encryptionData = EncryptionHandler.CreateEncryptionData(packageMetadata.id, encryptionDom);
 
@@ -421,12 +421,12 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
                 settingFinishedCallback();
 
 
-            }, function(error){
+            }, function(error){*/
 
                 _encryptionHandler = new EncryptionHandler(undefined);
 
                 settingFinishedCallback();
-            });
+            /*});*/
         };
 
         this.getDecryptionFunctionForRelativePath = function(pathRelativeToRoot) {
