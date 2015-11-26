@@ -24,3 +24,4 @@ http.log
 Session.vim
 .netrwhist
 *~
+npm-debug.log
