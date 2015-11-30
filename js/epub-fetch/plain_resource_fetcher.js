@@ -59,14 +59,15 @@ define(['jquery', 'URIjs', './discover_content_type'], function ($, URI, Content
             var url = ebookURL_filepath;
             
             try {
-                //url = new URI(relativeUrl).absoluteTo(url).search('').hash('').toString();
-                url = new URI(url).search('').hash('').toString();
+                // ### tss: skip clearing get parameters (i.e. search string)
+                url = new URI(url)/*.search('')*/.hash('').toString();
             } catch(err) {
                 console.error(err);
                 console.log(url);
             }
             
-            return url + (url.charAt(url.length-1) == '/' ? "" : "/") + pathRelativeToPackageRoot;
+            // ### tss: skip adding slash if lastChar is '='
+            return url + (['/', '='].indexOf(url.charAt(url.length-1)) !== -1 ? "" : "/") + pathRelativeToPackageRoot;
         };
 
         this.fetchFileContentsText = function(pathRelativeToPackageRoot, fetchCallback, onerror) {
