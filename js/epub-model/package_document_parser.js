@@ -70,8 +70,8 @@ define(['jquery', 'underscore', '../epub-fetch/markup_parser', 'URIjs', './packa
                     metadata.cover_href = cover;
                 }
 
-                $.when(updateMetadataWithIBookProperties(metadata)).then(function() {
-
+                // ### tss: do not load com.apple.ibooks.display-options.xml
+                //$.when(updateMetadataWithIBookProperties(metadata)).then(function() {
                     _packageFetcher.setPackageMetadata(metadata, function () {
                         var packageDocument = new PackageDocument(publicationFetcher.getPackageUrl(),
                             publicationFetcher, metadata, spine, manifest);
@@ -79,7 +79,7 @@ define(['jquery', 'underscore', '../epub-fetch/markup_parser', 'URIjs', './packa
                         packageDocument.setPageProgressionDirection(page_prog_dir);
                         fillSmilData(packageDocument, callback);
                     });
-                });
+                //});
 
             });
         };
