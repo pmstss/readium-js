@@ -59,11 +59,20 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
 
         var jsLibRoot = readiumOptions.jsLibRoot;
 
-        if (!readiumOptions.useSimpleLoader){
-            readerOptions.iframeLoader = new IframeZipLoader(function() { return _currentPublicationFetcher; }, _contentDocumentTextPreprocessor);
-        }
-        else{
-            readerOptions.iframeLoader = new IframeLoader();
+        // ### tss: ability to set iframeLoader from outside
+        if (!readerOptions.CustomIFrameLoader) {
+            if (!readiumOptions.useSimpleLoader) {
+                readerOptions.iframeLoader = new IframeZipLoader(function () {
+                    return _currentPublicationFetcher;
+                }, _contentDocumentTextPreprocessor);
+            }
+            else {
+                readerOptions.iframeLoader = new IframeLoader();
+            }
+        } else {
+            readerOptions.iframeLoader = new readerOptions.CustomIFrameLoader(function () {
+                return _currentPublicationFetcher;
+            }, _contentDocumentTextPreprocessor);
         }
 
         // Chrome extension and cross-browser cloud reader build configuration uses this scaling method across the board (no browser sniffing for Chrome)
@@ -85,7 +94,9 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                 cacheSizeEvictThreshold = readiumOptions.cacheSizeEvictThreshold;
             }
 
-            _currentPublicationFetcher = new PublicationFetcher(ebookURL, jsLibRoot, window, cacheSizeEvictThreshold, _contentDocumentTextPreprocessor, contentType);
+            // ### tss: ability to use custom ResourceFetcher
+            _currentPublicationFetcher = new PublicationFetcher(ebookURL, jsLibRoot, window, cacheSizeEvictThreshold,
+                    _contentDocumentTextPreprocessor, contentType, readerOptions.CustomResourceFetcher);
 
             _currentPublicationFetcher.initialize(function(resourceFetcher) {
 

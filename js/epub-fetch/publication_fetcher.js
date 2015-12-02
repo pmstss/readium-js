@@ -16,7 +16,9 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
     function ($, URI, MarkupParser, PlainResourceFetcher, ZipResourceFetcher, ContentDocumentFetcher,
               ResourceCache, EncryptionHandler, ContentTypeDiscovery, Helpers) {
 
-    var PublicationFetcher = function(ebookURL, jsLibRoot, sourceWindow, cacheSizeEvictThreshold, contentDocumentTextPreprocessor, contentType) {
+    // ### tss: ability to use custom ResourceFetcher
+    var PublicationFetcher = function(ebookURL, jsLibRoot, sourceWindow, cacheSizeEvictThreshold,
+                                      contentDocumentTextPreprocessor, contentType, CustomResourceFetcher) {
 
         var self = this;
 
@@ -94,7 +96,12 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
         }
 
         function createResourceFetcher(isExploded, callback) {
-            if (isExploded) {
+            // ### tss: ability to use custom ResourceFetcher
+            if (CustomResourceFetcher) {
+                console.log(' --- using CustomResourceFetcher');
+                _resourceFetcher = new CustomResourceFetcher(self);
+                callback(_resourceFetcher);
+            } else if (isExploded) {
                 console.log(' --- using PlainResourceFetcher');
                 _resourceFetcher = new PlainResourceFetcher(self);
                 callback(_resourceFetcher);
