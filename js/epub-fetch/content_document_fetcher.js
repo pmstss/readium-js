@@ -89,6 +89,12 @@ define(
                         anchor.insertBefore(baseElem, anchor.childNodes[0]);
                     }
                 }
+
+                // ### tss: remove source file name
+                var parts = baseURI.split("/");
+                parts.pop();
+                baseURI = parts.join("/") + "/";
+
                 baseElem.setAttribute('href', baseURI);
             }
 
