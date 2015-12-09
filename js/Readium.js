@@ -34,7 +34,7 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             var sourceParts = src.split("/");
             // ### tss: no clear why the next line was commented
             sourceParts.pop(); //remove source file name
-            var baseHref = sourceParts.join("/"); // + "/";
+            var baseHref = sourceParts.join("/") + "/";
             
             console.log("EPUB doc base href:");
             console.log(baseHref);
