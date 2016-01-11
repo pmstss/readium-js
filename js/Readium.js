@@ -34,7 +34,7 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             var sourceParts = src.split("/");
             // ### tss: no clear why the next line was commented
             sourceParts.pop(); //remove source file name
-            var baseHref = sourceParts.join("/"); // + "/";
+            var baseHref = sourceParts.join("/") + "/";
             
             console.log("EPUB doc base href:");
             console.log(baseHref);
@@ -47,9 +47,10 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             }
 
             contentDocumentHtml = contentDocumentHtml.replace(/(<head[\s\S]*?>)/, "$1" + base + scripts);
-                        
-            contentDocumentHtml = contentDocumentHtml.replace(/(<iframe[\s\S]+?)src[\s\S]*?=[\s\S]*?(["'])([^"']+?)(["'])([\s\S]*?>)/g, '$1data-src=$2$3$4$5');
-//console.debug(contentDocumentHtml);
+
+            contentDocumentHtml = contentDocumentHtml.replace(/(<iframe[\s\S]+?)src[\s]*=[\s]*(["'])[\s]*(.*)[\s]*(["'])([\s\S]*?>)/g, '$1data-src=$2$3$4$5');
+
+            contentDocumentHtml = contentDocumentHtml.replace(/(<iframe[\s\S]+?)data-src[\s]*=[\s]*(["'])[\s]*(http[s]?:\/\/.*)[\s]*(["'])([\s\S]*?>)/g, '$1src=$2$3$4$5');
             
             return contentDocumentHtml;
         };
