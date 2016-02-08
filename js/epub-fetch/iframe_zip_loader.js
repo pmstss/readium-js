@@ -11,66 +11,68 @@
 //  used to endorse or promote products derived from this software without specific
 //  prior written permission.
 
-define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './discover_content_type'], function(URI, IFrameLoader, _, ContentTypeDiscovery){
+// jshint quotmark:false
+// jshint latedef:nofunc
+// jscs:disable validateQuoteMarks
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-    var zipIframeLoader = function( getCurrentResourceFetcher, contentDocumentTextPreprocessor) {
+define(['jquery', 'URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './discover_content_type'],
+function ($, URI, IFrameLoader, _, ContentTypeDiscovery) {
 
-        var isIE = (window.navigator.userAgent.indexOf("Trident") > 0 || window.navigator.userAgent.indexOf("Edge") > 0);
-            
+    'use strict';
+
+    var debugMode = ReadiumSDK.DEBUG_MODE;
+
+    var ZipIframeLoader = function (getCurrentResourceFetcher, contentDocumentTextPreprocessor) {
+
+        var isIE = window.navigator.userAgent.indexOf("Trident") > 0 || window.navigator.userAgent.indexOf("Edge") > 0;
+
         var basicIframeLoader = new IFrameLoader();
 
         var self = this;
 
         var _contentDocumentTextPreprocessor = contentDocumentTextPreprocessor;
 
-        this.addIFrameEventListener = function (eventName, callback, context) {
-            basicIframeLoader.addIFrameEventListener(eventName, callback, context);
-        };
+        this.addIFrameWindowEventListener = basicIframeLoader.addIFrameWindowEventListener.bind(basicIframeLoader);
+
+        this.removeIFrameWindowEventListener = basicIframeLoader.removeIFrameWindowEventListener.bind(basicIframeLoader);
+
+        this.addIFrameDocumentEventListener = basicIframeLoader.addIFrameDocumentEventListener.bind(basicIframeLoader);
+
+        this.removeIFrameDocumentEventListener = basicIframeLoader.removeIFrameDocumentEventListener.bind(basicIframeLoader);
 
         this.updateIframeEvents = function (iframe) {
             basicIframeLoader.updateIframeEvents(iframe);
         };
 
-        this.loadIframe = function(iframe, src, callback, caller, attachedData) {
-
+        this.loadIframe = function (iframe, src, callback, caller, attachedData) {
             if (!iframe.baseURI) {
-                
                 if (isIE && iframe.ownerDocument.defaultView.frameElement) {
-                    
-                    //console.debug(iframe.ownerDocument.defaultView.location);
                     iframe.baseURI = iframe.ownerDocument.defaultView.frameElement.getAttribute("data-loadUri");
-                    
-                    console.log("EPUB doc iframe src (BEFORE):");
-                    console.log(src);
+                    if (debugMode) {
+                        console.log("EPUB doc iframe src (BEFORE): %o", src);
+                    }
                     src = new URI(src).absoluteTo(iframe.baseURI).search('').hash('').toString();
-                }
-                else if (typeof location !== 'undefined') {
+                } else if (typeof location !== 'undefined') {
                     iframe.baseURI = location.href + "";
                 }
-                
+
                 console.error("!iframe.baseURI => " + iframe.baseURI);
             }
-            
-            console.log("EPUB doc iframe src:");
-            console.log(src);
+
             iframe.setAttribute("data-src", src);
-            
-            console.log("EPUB doc iframe base URI:");
-            console.log(iframe.baseURI);
             iframe.setAttribute("data-baseUri", iframe.baseURI);
-            
-
             var loadedDocumentUri = new URI(src).absoluteTo(iframe.baseURI).search('').hash('').toString();
-
-            console.log("EPUB doc iframe LOAD URI:");
-            console.log(loadedDocumentUri);
             iframe.setAttribute("data-loadUri", loadedDocumentUri);
-            
+
+            if (debugMode) {
+                console.log("EPUB doc iframe src: %o", src);
+                console.log("EPUB doc iframe base URI: %o", iframe.baseURI);
+                console.log("EPUB doc iframe LOAD URI: %o", loadedDocumentUri);
+            }
+
             var shouldConstructDomProgrammatically = getCurrentResourceFetcher().shouldConstructDomProgrammatically();
             if (shouldConstructDomProgrammatically) {
-                
-                console.log("shouldConstructDomProgrammatically...");
-
                 getCurrentResourceFetcher().fetchContentDocument(attachedData, loadedDocumentUri,
                     function (resolvedContentDocumentDom) {
                         self._loadIframeWithDocument(iframe,
@@ -79,33 +81,33 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                             function () {
                                 callback.call(caller, true, attachedData);
                             });
-                    }, function (err) {
+                    }, function () {
                         callback.call(caller, false, attachedData);
                     }
                 );
             } else {
                 fetchContentDocument(loadedDocumentUri, function (contentDocumentHtml) {
-                      if (!contentDocumentHtml) {
-                          //failed to load content document
-                          callback.call(caller, false, attachedData);
-                      } else {
-                          self._loadIframeWithDocument(iframe, attachedData, contentDocumentHtml, function () {
-                              callback.call(caller, true, attachedData);
-                          });
-                      }
+                    if (!contentDocumentHtml) {
+                        //failed to load content document
+                        callback.call(caller, false, attachedData);
+                    } else {
+                        self._loadIframeWithDocument(iframe, attachedData, contentDocumentHtml, function () {
+                            callback.call(caller, true, attachedData);
+                        });
+                    }
                 });
             }
         };
 
         this._loadIframeWithDocument = function (iframe, attachedData, contentDocumentData, callback) {
-
+            var documentDataUri;
             if (!isIE) {
                 var contentType = 'text/html';
                 if (attachedData.spineItem.media_type && attachedData.spineItem.media_type.length) {
                     contentType = attachedData.spineItem.media_type;
                 }
 
-                var documentDataUri = window.URL.createObjectURL(
+                documentDataUri = window.URL.createObjectURL(
                     new Blob([contentDocumentData], {'type': contentType})
                 );
             } else {
@@ -118,7 +120,7 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                 // so we're doing it manually. See:
                 // https://github.com/MSOpenTech/winstore-jscompat/
                 if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
-                    window.MSApp.execUnsafeLocalFunction(function() {
+                    window.MSApp.execUnsafeLocalFunction(function () {
                         iframe.contentWindow.document.write(contentDocumentData);
                     });
                 } else {
@@ -129,98 +131,69 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
             iframe.onload = function () {
                 var doc = iframe.contentDocument || iframe.contentWindow.document;
 
-                // $('iframe', doc).each(function(i, child_iframe){
-                //     console.debug(child_iframe);
-                //     console.log(child_iframe.attr("data-src"));
-                // });
-                
                 if (iframe.contentWindow.frames) {
                     for (var i = 0; i < iframe.contentWindow.frames.length; i++) {
                         var child_iframe = iframe.contentWindow.frames[i];
-                        // console.debug(child_iframe);
-                        
-                        // console.log(child_iframe.frameElement.baseURI);
-                        
-                        // console.log(child_iframe.location);
-                        
+
                         var childSrc = undefined;
-                        
-                        try{
+
+                        try {
                             childSrc = child_iframe.frameElement.getAttribute("data-src");
-                        } catch(err) {
+                        } catch (err) {
                             // HTTP(S) cross-origin access?
                             console.warn(err);
                             continue;
                         }
-                        // console.log(childSrc);
-                        
+
                         if (!childSrc) {
-                            if (child_iframe.frameElement.localName == "iframe") {
+                            if (child_iframe.frameElement.localName === "iframe") {
                                 console.error("IFRAME data-src missing?!");
                             }
                             continue;
                         }
-                            
-                        // console.debug(attachedData);
-                        var contentDocumentPathRelativeToPackage = attachedData.spineItem.href; 
-                            
-                        var publicationFetcher = getCurrentResourceFetcher();
-                            
-                        var contentDocumentPathRelativeToBase = publicationFetcher.convertPathRelativeToPackageToRelativeToBase(contentDocumentPathRelativeToPackage);
-                        // console.log("contentDocumentPathRelativeToBase: " + contentDocumentPathRelativeToBase);
-    
-                        var refAttrOrigVal_RelativeToBase = (new URI(childSrc)).absoluteTo(contentDocumentPathRelativeToBase).toString();
-                        // console.log("refAttrOrigVal_RelativeToBase: " + refAttrOrigVal_RelativeToBase);
-    
-                        var packageFullPath = publicationFetcher.getPackageFullPathRelativeToBase();
-                        // console.log("packageFullPath: " + packageFullPath);
-    
-    
-                        var refAttrOrigVal_RelativeToPackage = (new URI("/"+refAttrOrigVal_RelativeToBase)).relativeTo("/"+packageFullPath).toString();
-                        // console.log("refAttrOrigVal_RelativeToPackage: " + refAttrOrigVal_RelativeToPackage);
 
-                        var mimetype = ContentTypeDiscovery.identifyContentTypeFromFileName(refAttrOrigVal_RelativeToPackage);
-                        
-                        var childIframeLoader = new zipIframeLoader(getCurrentResourceFetcher, contentDocumentTextPreprocessor);
-                        childIframeLoader.loadIframe(
-                            child_iframe.frameElement,
-                            childSrc,
-                            function() {
-                                console.log("CHILD IFRAME LOADED.");
-                            },
-                            self,
-                            {
-                                spineItem:
-                                {
-                                  media_type: mimetype, //attachedData.spineItem.media_type,
-                                  href: refAttrOrigVal_RelativeToPackage
-                                }
+                        var contentDocumentPathRelativeToPackage = attachedData.spineItem.href;
+                        var publicationFetcher = getCurrentResourceFetcher();
+                        var contentDocumentPathRelativeToBase = publicationFetcher.convertPathRelativeToPackageToRelativeToBase(
+                                contentDocumentPathRelativeToPackage);
+                        var refAttrOrigVal_RelativeToBase = (new URI(childSrc)).absoluteTo(contentDocumentPathRelativeToBase).toString();
+                        var packageFullPath = publicationFetcher.getPackageFullPathRelativeToBase();
+                        var refAttrOrigVal_RelativeToPackage = (new URI("/" + refAttrOrigVal_RelativeToBase)).relativeTo("/" +
+                                packageFullPath).toString();
+                        var mimeType = ContentTypeDiscovery.identifyContentTypeFromFileName(refAttrOrigVal_RelativeToPackage);
+
+                        var childIframeLoader = new ZipIframeLoader(getCurrentResourceFetcher, contentDocumentTextPreprocessor);
+                        childIframeLoader.loadIframe(child_iframe.frameElement, childSrc,
+                                console.log.bind(console, "CHILD IFRAME LOADED."), self, {
+                            spineItem: {
+                                media_type: mimeType,
+                                href: refAttrOrigVal_RelativeToPackage
                             }
-                        );
+                        });
                     }
                 }
-                
-                $('svg', doc).load(function(){
+
+                $('svg', doc).load(function () {
                     console.log('SVG loaded');
                 });
-                
+
                 self.updateIframeEvents(iframe);
-                
+
                 var mathJax = iframe.contentWindow.MathJax;
                 if (mathJax) {
-                    
-                    mathJax.Hub.Config({SVG:{useFontCache:!mathJax.Hub.Browser.isFirefox}});
-                    
+
+                    mathJax.Hub.Config({SVG: {useFontCache: !mathJax.Hub.Browser.isFirefox}});
+
                     // If MathJax is being used, delay the callback until it has completed rendering
                     var mathJaxCallback = _.once(callback);
-                    
+
                     try {
                         mathJax.Hub.Queue(mathJaxCallback);
                     } catch (err) {
                         console.error("MathJax fail!");
                         callback();
                     }
-                    
+
                     // Or at an 8 second timeout, which ever comes first
                     // window.setTimeout(mathJaxCallback, 8000);
                 } else {
@@ -240,7 +213,6 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
         };
 
         function fetchHtmlAsText(path, callback) {
-
             $.ajax({
                 url: path,
                 dataType: 'html',
@@ -250,18 +222,14 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                     callback(result);
                 },
                 error: function (xhr, status, errorThrown) {
-                    console.error('Error when AJAX fetching ' + path);
-                    console.error(status);
-                    console.error(errorThrown);
+                    console.error('Error when AJAX fetching %o - status: %o, error: %o', path, status, errorThrown);
                     callback();
                 }
             });
         }
 
         function fetchContentDocument(src, callback) {
-
             fetchHtmlAsText(src, function (contentDocumentHtml) {
-
                 if (!contentDocumentHtml) {
                     callback();
                     return;
@@ -276,5 +244,5 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
         }
     };
 
-    return zipIframeLoader;
+    return ZipIframeLoader;
 });
