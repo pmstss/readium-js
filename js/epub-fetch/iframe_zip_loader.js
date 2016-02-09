@@ -21,7 +21,7 @@ function ($, URI, IFrameLoader, _, ContentTypeDiscovery) {
 
     'use strict';
 
-    var debugMode = ReadiumSDK.DEBUG_MODE;
+    var debugMode = false; //ReadiumSDK.DEBUG_MODE - defined in readium_shared_js, not here
 
     var ZipIframeLoader = function (getCurrentResourceFetcher, contentDocumentTextPreprocessor) {
 
