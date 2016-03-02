@@ -41,8 +41,6 @@ function ($, URI, IFrameLoader, _, ContentTypeDiscovery) {
 
         this.removeIFrameDocumentEventListener = basicIframeLoader.removeIFrameDocumentEventListener.bind(basicIframeLoader);
 
-        this._onIframeLoad = basicIframeLoader._onIframeLoad.bind(this);
-
         this.updateIframeEvents = function (iframe) {
             basicIframeLoader.updateIframeEvents(iframe);
         };
@@ -131,50 +129,7 @@ function ($, URI, IFrameLoader, _, ContentTypeDiscovery) {
             }
 
             iframe.onload = function () {
-                if (iframe.contentWindow.frames) {
-                    for (var i = 0; i < iframe.contentWindow.frames.length; i++) {
-                        var child_iframe = iframe.contentWindow.frames[i];
-
-                        var childSrc = undefined;
-
-                        try {
-                            childSrc = child_iframe.frameElement.getAttribute("data-src");
-                        } catch (err) {
-                            // HTTP(S) cross-origin access?
-                            console.warn(err);
-                            continue;
-                        }
-
-                        if (!childSrc) {
-                            if (child_iframe.frameElement.localName === "iframe") {
-                                console.error("IFRAME data-src missing?!");
-                            }
-                            continue;
-                        }
-
-                        var contentDocumentPathRelativeToPackage = attachedData.spineItem.href;
-                        var publicationFetcher = getCurrentResourceFetcher();
-                        var contentDocumentPathRelativeToBase = publicationFetcher.convertPathRelativeToPackageToRelativeToBase(
-                                contentDocumentPathRelativeToPackage);
-                        var refAttrOrigVal_RelativeToBase = (new URI(childSrc)).absoluteTo(contentDocumentPathRelativeToBase).toString();
-                        var packageFullPath = publicationFetcher.getPackageFullPathRelativeToBase();
-                        var refAttrOrigVal_RelativeToPackage = (new URI("/" + refAttrOrigVal_RelativeToBase)).relativeTo("/" +
-                                packageFullPath).toString();
-                        var mimeType = ContentTypeDiscovery.identifyContentTypeFromFileName(refAttrOrigVal_RelativeToPackage);
-
-                        var childIframeLoader = new ZipIframeLoader(getCurrentResourceFetcher, contentDocumentTextPreprocessor);
-                        childIframeLoader.loadIframe(child_iframe.frameElement, childSrc,
-                                console.log.bind(console, "CHILD IFRAME LOADED."), self, {
-                            spineItem: {
-                                media_type: mimeType,
-                                href: refAttrOrigVal_RelativeToPackage
-                            }
-                        });
-                    }
-                }
-
-                self._onIframeLoad(iframe, callback);
-
+                self._onIframeLoad(iframe, callback, attachedData);
                 if (!isIE) {
                     window.URL.revokeObjectURL(documentDataUri);
                 }
@@ -185,6 +140,52 @@ function ($, URI, IFrameLoader, _, ContentTypeDiscovery) {
             } else {
                 iframe.contentWindow.document.close();
             }
+        };
+
+        this._onIframeLoad = function (iframe, callback, attachedData) {
+            if (iframe.contentWindow.frames) {
+                for (var i = 0; i < iframe.contentWindow.frames.length; i++) {
+                    var child_iframe = iframe.contentWindow.frames[i];
+
+                    var childSrc = undefined;
+
+                    try {
+                        childSrc = child_iframe.frameElement.getAttribute("data-src");
+                    } catch (err) {
+                        // HTTP(S) cross-origin access?
+                        console.warn(err);
+                        continue;
+                    }
+
+                    if (!childSrc) {
+                        if (child_iframe.frameElement.localName === "iframe") {
+                            console.error("IFRAME data-src missing?!");
+                        }
+                        continue;
+                    }
+
+                    var contentDocumentPathRelativeToPackage = attachedData.spineItem.href;
+                    var publicationFetcher = getCurrentResourceFetcher();
+                    var contentDocumentPathRelativeToBase = publicationFetcher.convertPathRelativeToPackageToRelativeToBase(
+                        contentDocumentPathRelativeToPackage);
+                    var refAttrOrigVal_RelativeToBase = (new URI(childSrc)).absoluteTo(contentDocumentPathRelativeToBase).toString();
+                    var packageFullPath = publicationFetcher.getPackageFullPathRelativeToBase();
+                    var refAttrOrigVal_RelativeToPackage = (new URI("/" + refAttrOrigVal_RelativeToBase)).relativeTo("/" +
+                        packageFullPath).toString();
+                    var mimeType = ContentTypeDiscovery.identifyContentTypeFromFileName(refAttrOrigVal_RelativeToPackage);
+
+                    var childIframeLoader = new ZipIframeLoader(getCurrentResourceFetcher, contentDocumentTextPreprocessor);
+                    childIframeLoader.loadIframe(child_iframe.frameElement, childSrc,
+                        console.log.bind(console, "CHILD IFRAME LOADED."), self, {
+                            spineItem: {
+                                media_type: mimeType,
+                                href: refAttrOrigVal_RelativeToPackage
+                            }
+                        });
+                }
+            }
+
+            basicIframeLoader._onIframeLoad.call(this, iframe, callback);
         };
 
         function fetchHtmlAsText(path, callback) {
