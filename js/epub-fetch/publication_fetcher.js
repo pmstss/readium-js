@@ -21,7 +21,7 @@ function ($, URI, Globals, MarkupParser, PlainResourceFetcher, ZipResourceFetche
           ResourceCache, EncryptionHandler, ContentTypeDiscovery, Helpers) {
     'use strict';
 
-    var debug = ReadiumSDK.DEBUG_MODE;
+    var debug = Globals.DEBUG_MODE;
 
     // ### tss: ability to use custom ResourceFetcher
     return function (ebookURL, jsLibRoot, sourceWindow, cacheSizeEvictThreshold, contentDocumentTextPreprocessor,

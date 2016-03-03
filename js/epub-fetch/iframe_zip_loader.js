@@ -16,12 +16,13 @@
 // jscs:disable validateQuoteMarks
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-define(['jquery', 'URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './discover_content_type'],
-function ($, URI, IFrameLoader, _, ContentTypeDiscovery) {
+define(['jquery', 'URIjs', 'readium_shared_js/globals', 'readium_shared_js/views/iframe_loader', 'underscore',
+'./discover_content_type'],
+function ($, URI, Globals, IFrameLoader, _, ContentTypeDiscovery) {
 
     'use strict';
 
-    var debugMode = false; //ReadiumSDK.DEBUG_MODE - defined in readium_shared_js, not here
+    var debugMode = Globals.DEBUG_MODE;
 
     var ZipIframeLoader = function (getCurrentResourceFetcher, contentDocumentTextPreprocessor) {
 
