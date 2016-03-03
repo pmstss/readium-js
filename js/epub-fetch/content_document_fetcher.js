@@ -80,10 +80,12 @@ function ($, _, URI, Globals, ContentTypeDiscovery) {
             //     callback(data);
             // });
 
-            // TODO: resolution (e.g. using DOM mutation events) of scripts loaded dynamically by scripts
-            resolveDocumentScripts(resolutionDeferreds, onerror);
-            resolveDocumentLinkStylesheets(resolutionDeferreds, onerror);
-            resolveDocumentEmbeddedStylesheets(resolutionDeferreds, onerror);
+            if (_publicationFetcher.shouldFetchScriptsAndStylesProgrammatically()) {
+                // TODO: resolution (e.g. using DOM mutation events) of scripts loaded dynamically by scripts
+                resolveDocumentScripts(resolutionDeferreds, onerror);
+                resolveDocumentLinkStylesheets(resolutionDeferreds, onerror);
+                resolveDocumentEmbeddedStylesheets(resolutionDeferreds, onerror);
+            }
 
             $.when.apply($, resolutionDeferreds).done(function () {
                 if (debug) {

@@ -148,6 +148,11 @@ function ($, URI, Globals, MarkupParser, PlainResourceFetcher, ZipResourceFetche
             return _shouldConstructDomProgrammatically && !isExploded();
         };
 
+        this.shouldFetchScriptsAndStylesProgrammatically = function () {
+            return _resourceFetcher.shouldFetchScriptsAndStylesProgrammatically ?
+                _resourceFetcher.shouldFetchScriptsAndStylesProgrammatically() : true;
+        };
+
         this.getEbookURL = function () {
             return ebookURL;
         };
