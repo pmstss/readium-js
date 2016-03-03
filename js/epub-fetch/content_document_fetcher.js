@@ -121,7 +121,7 @@ function ($, _, URI, Globals, ContentTypeDiscovery) {
             function replaceRefAttrInElem(newResourceUrl) {
                 // Store original refAttrVal in a special attribute to provide access to the original href:
                 //$(resolvedElem).data('epubZipOrigHref', refAttrOrigVal);
-                $(resolvedElem).attr('data-epubZipOrigHref', refAttrOrigVal);
+                //$(resolvedElem).attr('data-epubZipOrigHref', refAttrOrigVal);
                 $(resolvedElem).attr(refAttr, newResourceUrl);
             }
 
