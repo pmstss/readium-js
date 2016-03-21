@@ -16,8 +16,8 @@
 // jshint quotmark:false
 // jshint latedef: nofunc
 
-define(['jquery', 'underscore', 'URIjs', 'readium_shared_js/globals', './discover_content_type'],
-function ($, _, URI, Globals, ContentTypeDiscovery) {
+define(['jquery', 'underscore', 'URIjs', 'readium_shared_js/globals', 'readium_shared_js/helpers', './discover_content_type'],
+function ($, _, URI, Globals, Helpers, ContentTypeDiscovery) {
     'use strict';
 
     var debug = Globals.DEBUG_MODE;
@@ -169,7 +169,7 @@ function ($, _, URI, Globals, ContentTypeDiscovery) {
                             if (declaredType) {
                                 textResourceContentType = declaredType;
                             }
-                            finalResourceData = new Blob([finalResourceData], {type: textResourceContentType});
+                            finalResourceData = Helpers.createBlob([finalResourceData], textResourceContentType);
                         }
                         //noinspection JSUnresolvedVariable,JSUnresolvedFunction
                         var resourceObjectURL = window.URL.createObjectURL(finalResourceData);
@@ -255,7 +255,7 @@ function ($, _, URI, Globals, ContentTypeDiscovery) {
                     fetchCallback = function (styleSheetResourceData) {
                         preprocessCssStyleSheetData(styleSheetResourceData, resourceUriRelativeToBase,
                             function (preprocessedStyleSheetData) {
-                                var resourceDataBlob = new Blob([preprocessedStyleSheetData], {type: 'text/css'});
+                                var resourceDataBlob = Helpers.createBlob([preprocessedStyleSheetData], 'text/css');
                                 processedBlobCallback(resourceDataBlob);
                             });
                     };

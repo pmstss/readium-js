@@ -16,9 +16,9 @@
 // jscs:disable validateQuoteMarks
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-define(['jquery', 'URIjs', 'readium_shared_js/globals', 'readium_shared_js/views/iframe_loader', 'underscore',
+define(['jquery', 'URIjs', 'readium_shared_js/globals', 'readium_shared_js/helpers', 'readium_shared_js/views/iframe_loader', 'underscore',
 './discover_content_type'],
-function ($, URI, Globals, IFrameLoader, _, ContentTypeDiscovery) {
+function ($, URI, Globals, Helpers, IFrameLoader, _, ContentTypeDiscovery) {
 
     'use strict';
 
@@ -108,9 +108,7 @@ function ($, URI, Globals, IFrameLoader, _, ContentTypeDiscovery) {
                     contentType = attachedData.spineItem.media_type;
                 }
 
-                documentDataUri = window.URL.createObjectURL(
-                    new Blob([contentDocumentData], {'type': contentType})
-                );
+                documentDataUri = window.URL.createObjectURL(Helpers.createBlob([contentDocumentData], contentType));
             } else {
                 // Internet Explorer doesn't handle loading documents from Blobs correctly.
                 // TODO: Currently using the document.write() approach only for IE, as it breaks CSS selectors

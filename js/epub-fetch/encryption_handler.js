@@ -1,17 +1,17 @@
 //  Copyright (c) 2014 Readium Foundation and/or its licensees. All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification, 
+//
+//  Redistribution and use in source and binary forms, with or without modification,
 //  are permitted provided that the following conditions are met:
-//  1. Redistributions of source code must retain the above copyright notice, this 
+//  1. Redistributions of source code must retain the above copyright notice, this
 //  list of conditions and the following disclaimer.
-//  2. Redistributions in binary form must reproduce the above copyright notice, 
-//  this list of conditions and the following disclaimer in the documentation and/or 
+//  2. Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation and/or
 //  other materials provided with the distribution.
-//  3. Neither the name of the organization nor the names of its contributors may be 
-//  used to endorse or promote products derived from this software without specific 
+//  3. Neither the name of the organization nor the names of its contributors may be
+//  used to endorse or promote products derived from this software without specific
 //  prior written permission.
 
-define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
+define(['cryptoJs/sha1', 'readium_shared_js/helpers'], function (CryptoJS_SHA1, Helpers) {
 
     var EncryptionHandler = function (encryptionData) {
         var self = this;
@@ -39,17 +39,16 @@ define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
                 for (var i = 0; i < prefixLength; i++) {
                     bytes[i] = bytes[i] ^ (xorKey[i % masklen]);
                 }
-                var deobfuscatedPrefixBlob = new Blob([bytes], { type: obfuscatedResourceBlob.type });
+                var deobfuscatedPrefixBlob = Helpers.createBlob([bytes], obfuscatedResourceBlob.type);
                 var remainderBlob = obfuscatedResourceBlob.slice(prefixLength);
-                var deobfuscatedBlob = new Blob([deobfuscatedPrefixBlob, remainderBlob],
-                    { type: obfuscatedResourceBlob.type });
+                var deobfuscatedBlob = Helpers.createBlob([deobfuscatedPrefixBlob, remainderBlob], obfuscatedResourceBlob.type);
 
                 callback(deobfuscatedBlob);
             });
         }
 
         function embeddedFontDeobfuscateIdpf(obfuscatedResourceBlob, callback) {
-            
+
             var prefixLength = 1040;
             // Shamelessly copied from
             // https://github.com/readium/readium-chrome-extension/blob/26d4b0cafd254cfa93bf7f6225887b83052642e0/scripts/models/path_resolver.js#L102 :
@@ -74,7 +73,7 @@ define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
         }
 
         function embeddedFontDeobfuscateAdobe(obfuscatedResourceBlob, callback) {
-            
+
             // extract the UUID and convert to big-endian binary form (16 bytes):
             var uidWordArray = urnUuidToByteArray(encryptionData.uid);
             var prefixLength = 1024;
@@ -99,11 +98,11 @@ define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
         };
 
         this.getDecryptionFunctionForRelativePath = function (pathRelativeToRoot) {
-        
+
             var encryptionMethod = self.getEncryptionMethodForRelativePath(pathRelativeToRoot);
-            
+
             //console.debug(pathRelativeToRoot + " -- " + encryptionMethod + " ... " + typeof ENCRYPTION_METHODS[encryptionMethod]);
-            
+
             if (encryptionMethod && ENCRYPTION_METHODS[encryptionMethod]) {
                 return ENCRYPTION_METHODS[encryptionMethod];
             } else {
@@ -117,21 +116,21 @@ define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
 
         var txt = unescape(encodeURIComponent(id.trim()));
         var sha = CryptoJS_SHA1(txt);
-        
+
         //console.debug(sha.toString(CryptoJS.enc.Hex));
-        
+
         var byteArray = [];
-        
+
         for (var i = 0; i < sha.sigBytes; i++) {
             byteArray.push((sha.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff);
         }
-        
+
         // for (var i = 0; i < sha.words.length; ++i) {
         //     for (var j = 3; j >= 0; --j) {
         //         byteArray.push((sha.words[i] >> 8 * j) & 0xFF);
         //     }
         // }
-        
+
         var encryptionData = {
             uid: id,
             uidHash: byteArray,
@@ -145,10 +144,10 @@ define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
             // For some reason, jQuery selector "" against XML DOM sometimes doesn't match properly
             var cipherReference = $('CipherReference', encryptedData);
             cipherReference.each(function (index, CipherReference) {
-                
+
                 //var cipherReferenceURI = "/" + $(CipherReference).attr('URI');
                 var cipherReferenceURI = $(CipherReference).attr('URI');
-                
+
                 console.log('Encryption/obfuscation algorithm ' + encryptionAlgorithm + ' specified for ' +
                     cipherReferenceURI);
 

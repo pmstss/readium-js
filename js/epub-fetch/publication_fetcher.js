@@ -331,9 +331,8 @@ function ($, URI, Globals, MarkupParser, PlainResourceFetcher, ZipResourceFetche
                     xhr.onerror = onerror;
 
                     xhr.onload = function () {
-                        var blob = new Blob([xhr.response], {
-                            type: ContentTypeDiscovery.identifyContentTypeFromFileName(relativeToPackagePath)
-                        });
+                        var blob = Helpers.createBlob([xhr.response],
+                                ContentTypeDiscovery.identifyContentTypeFromFileName(relativeToPackagePath));
                         fetchCallback(blob);
                     };
 
