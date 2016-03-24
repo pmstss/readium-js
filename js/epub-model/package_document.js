@@ -1,14 +1,14 @@
 //  Copyright (c) 2014 Readium Foundation and/or its licensees. All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification, 
+//
+//  Redistribution and use in source and binary forms, with or without modification,
 //  are permitted provided that the following conditions are met:
-//  1. Redistributions of source code must retain the above copyright notice, this 
+//  1. Redistributions of source code must retain the above copyright notice, this
 //  list of conditions and the following disclaimer.
-//  2. Redistributions in binary form must reproduce the above copyright notice, 
-//  this list of conditions and the following disclaimer in the documentation and/or 
+//  2. Redistributions in binary form must reproduce the above copyright notice,
+//  this list of conditions and the following disclaimer in the documentation and/or
 //  other materials provided with the distribution.
-//  3. Neither the name of the organization nor the names of its contributors may be 
-//  used to endorse or promote products derived from this software without specific 
+//  3. Neither the name of the organization nor the names of its contributors may be
+//  used to endorse or promote products derived from this software without specific
 //  prior written permission.
 
 define(['jquery', 'underscore', 'URIjs'],
@@ -123,15 +123,7 @@ define(['jquery', 'underscore', 'URIjs'],
                         $ncxOrderedList = getNcxOrderedList($("navMap", tocDom));
                         callback($ncxOrderedList[0]);
                     } else {
-                        var packageDocumentAbsoluteURL = new URI(packageDocumentURL).absoluteTo(document.URL);
-                        var tocDocumentAbsoluteURL = new URI(that.getToc()).absoluteTo(packageDocumentAbsoluteURL);
-                        // add a BASE tag to change the TOC document's baseURI.
-                        var oldBaseTag = $(tocDom).remove('base');
-                        var newBaseTag = $('<base></base>');
-                        $(newBaseTag).attr('href', tocDocumentAbsoluteURL);
-                        $(tocDom).find('head').append(newBaseTag);
-                        // TODO: fix TOC hrefs both for exploded in zipped EPUBs
-                        callback(tocDom);
+                        callback(tocDom.querySelector('ol'));
                     }
                 } else {
                     callback(undefined);
@@ -174,16 +166,12 @@ define(['jquery', 'underscore', 'URIjs'],
             $ol.append($navPointLi);
 
             // Append ordered list of nav points
-            if ($navPointDOM.children("navPoint").length > 0 ) {
-
-                var $newLi = $("<li></li>");
+            if ($navPointDOM.children("navPoint").length > 0) {
                 var $newOl = $("<ol></ol>");
                 $.each($navPointDOM.children("navPoint"), function (navIndex, navPoint) {
                     $newOl.append(addNavPointElements($(navPoint), $newOl));
                 });
-
-                $newLi.append($newOl);
-                $ol.append($newLi);
+                $navPointLi.append($newOl);
             }
         }
 
