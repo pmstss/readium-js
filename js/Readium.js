@@ -77,11 +77,10 @@ function (URI, Globals, versionText, $, _, ReaderView, PublicationFetcher, Packa
 
         var self = this;
 
-        var _currentPublicationFetcher = undefined;
-        this.getCurrentPublicationFetcher = function() {
+        var _currentPublicationFetcher;
+        this.getCurrentPublicationFetcher = function () {
             return _currentPublicationFetcher;
         };
-            
 
         var jsLibRoot = readiumOptions.jsLibRoot;
 
